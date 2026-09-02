@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 372 86" role="img" aria-label="LiVEUO — Innovate, Elevate, Automate">
+  <defs>
+    <linearGradient id="luo-ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a6cb5"/>
+      <stop offset="1" stop-color="#5cc4f1"/>
+    </linearGradient>
+    <linearGradient id="luo-i" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a6cb5"/>
+      <stop offset="1" stop-color="#5cc4f1"/>
+    </linearGradient>
+    <radialGradient id="luo-globe" cx="0.35" cy="0.32" r="0.85">
+      <stop offset="0" stop-color="#7fd0f5"/>
+      <stop offset="0.55" stop-color="#3f8bd4"/>
+      <stop offset="1" stop-color="#2f6fbf"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Wordmark: LiVEU -->
+  <g fill="#404042" font-family="'Space Grotesk','Segoe UI',Arial,sans-serif" font-weight="700">
+    <text x="0" y="60" font-size="66" letter-spacing="-1">L</text>
+    <!-- i stem + dot in brand blue -->
+    <rect x="47" y="30" width="12" height="30" rx="3" fill="url(#luo-i)"/>
+    <circle cx="53" cy="20" r="7.5" fill="url(#luo-i)"/>
+    <text x="66" y="60" font-size="66" letter-spacing="-1">VEU</text>
+  </g>
+
+  <!-- Globe as the final O -->
+  <g transform="translate(232,20)">
+    <circle cx="20" cy="20" r="20" fill="url(#luo-globe)"/>
+    <g fill="none" stroke="#eaf4fc" stroke-width="1.4" opacity="0.9">
+      <ellipse cx="20" cy="20" rx="20" ry="20"/>
+      <ellipse cx="20" cy="20" rx="8" ry="20"/>
+      <path d="M0.6 14 H39.4 M0.6 26 H39.4"/>
+    </g>
+    <!-- stylised continents -->
+    <path d="M12 9 q4 2 2 6 q-3 3 1 6 q-4 1 -6 -3 q-1 -5 3 -9 z" fill="#eaf4fc" opacity="0.85"/>
+    <path d="M24 22 q5 -1 6 4 q-1 5 -6 6 q-4 -4 0 -10 z" fill="#eaf4fc" opacity="0.85"/>
+    <circle cx="20" cy="20" r="19.2" fill="none" stroke="#2b5f9e" stroke-width="1.4"/>
+  </g>
+
+  <!-- Tagline -->
+  <text x="1" y="80" font-family="'Inter','Segoe UI',Arial,sans-serif" font-weight="600"
+        font-size="12.5" letter-spacing="0.5" fill="#5f7086">Innovate <tspan fill="#5cc4f1">|</tspan> Elevate <tspan fill="#5cc4f1">|</tspan> Automate</text>
+</svg>

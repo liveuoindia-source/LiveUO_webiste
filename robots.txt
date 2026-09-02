@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Legacy paths and build artifacts are handled by 301s / noindex in web.config
+# rather than Disallow — a blocked URL cannot be crawled, so Google would
+# never read the signal telling it where the page moved to.
+
+Sitemap: https://www.liveuo.com/sitemap.xml

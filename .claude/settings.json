@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Item \"d:\\\\LiveUO_webiste\\\\_next\\\\static\\\\chunks\\\\3plzysnn66upc.css\"\\).Length; \\(Get-Content \"d:\\\\LiveUO_webiste\\\\_next\\\\static\\\\chunks\\\\3plzysnn66upc.css\" -Raw\\).Length)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(npm install express better-sqlite3 multer express-session bcryptjs --save 2>&1)",
+      "PowerShell(Get-Command curl.exe -ErrorAction SilentlyContinue)",
+      "PowerShell($jar = \"$env:TEMP\\\\liveuo-cookies2.txt\"; curl.exe -s -c $jar -b $jar -X POST http://localhost:3000/api/admin/login -H \"Content-Type: application/json\" -d '{\\\\\"email\\\\\":\\\\\"admin@liveuo.com\\\\\",\\\\\"password\\\\\":\\\\\"MsbypufPcoKh\\\\\"}')",
+      "PowerShell(\"Sample brochure content for pharCare.\" | Out-File -FilePath \"$env:TEMP\\\\pharcare-brochure.txt\" -Encoding utf8)",
+      "PowerShell($jar = \"$env:TEMP\\\\liveuo-cookies2.txt\"; curl.exe -s -c $jar -b $jar -X POST \"http://localhost:3000/api/admin/assets/1/versions\" -F \"version_label=v1.0\" -F \"file=@$env:TEMP\\\\pharcare-brochure.txt\")",
+      "PowerShell($jar = \"$env:TEMP\\\\liveuo-cookies2.txt\"; curl.exe -s -c $jar -b $jar -X PATCH \"http://localhost:3000/api/admin/assets/1\" -H \"Content-Type: application/json\" -d '{\\\\\"status\\\\\":\\\\\"published\\\\\"}')",
+      "PowerShell(curl.exe -s \"http://localhost:3000/api/downloads?category=pharcare\")",
+      "PowerShell(curl.exe -s -o \"$env:TEMP\\\\downloaded.txt\" -D - \"http://localhost:3000/api/downloads/pharcare-product-brochure/file\" | Select-String \"HTTP|Content-Disposition\"; Get-Content \"$env:TEMP\\\\downloaded.txt\")",
+      "PowerShell(curl.exe -s -w \"`nHTTP %{http_code}`n\" \"http://localhost:3000/api/downloads/pharcare-pricing-sheet/file\")",
+      "PowerShell(curl.exe -s -w \"`nHTTP %{http_code}`n\" \"http://localhost:3000/api/downloads/pharcare-pricing-sheet/file?token=eyJhIjoyLCJlIjoxNzg1NDE2MDcxNzExfQ.t13Sv-CXsLQHSW_e_j5b2_CJwCIuDL_oO0bSOoBYG8M\")",
+      "PowerShell(curl.exe -s -o NUL -w \"home: %{http_code}`n\" http://localhost:3000/)",
+      "PowerShell(curl.exe -s \"http://localhost:3000/api/downloads\")",
+      "PowerShell(curl.exe -s -o NUL -w \"about: %{http_code}`n\" http://localhost:3000/about/)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Id 27240)",
+      "PowerShell(Stop-Process -Id 27240 -Force -Confirm:$false)",
+      "PowerShell(Get-ChildItem -Path \"d:\\\\LiveUO_webiste\\\\assets\" -Recurse -File | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})",
+      "PowerShell(node -e \"new \\(require\\('express'\\)\\)\\(\\)\" 2>$null; node -c \"$\\(Get-Content -Raw 'd:\\\\LiveUO_webiste\\\\server.js'\\)\" 2>&1 | Out-Null; Write-Output \"server.js syntax check skipped \\(not needed, no server.js changes made\\)\")",
+      "PowerShell(npm install dotenv express-rate-limit nodemailer --no-audit --no-fund 2>&1)",
+      "PowerShell($env:PORT=3000; node server.js)",
+      "PowerShell(\\(Invoke-WebRequest -Uri \"http://localhost:3000/contact/\" -UseBasicParsing\\).StatusCode)"
+    ]
+  }
+}

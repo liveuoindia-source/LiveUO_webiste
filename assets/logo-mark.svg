@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LiVEUO">
+  <defs>
+    <linearGradient id="m-ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a6cb5"/>
+      <stop offset="1" stop-color="#5cc4f1"/>
+    </linearGradient>
+    <radialGradient id="m-globe" cx="0.35" cy="0.32" r="0.85">
+      <stop offset="0" stop-color="#7fd0f5"/>
+      <stop offset="0.55" stop-color="#3f8bd4"/>
+      <stop offset="1" stop-color="#2f6fbf"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="29" fill="none" stroke="url(#m-ring)" stroke-width="5" stroke-linecap="round" stroke-dasharray="150 32" transform="rotate(-90 32 32)"/>
+  <circle cx="32" cy="32" r="17" fill="url(#m-globe)"/>
+  <g fill="none" stroke="#eaf4fc" stroke-width="1.3" opacity="0.9">
+    <ellipse cx="32" cy="32" rx="17" ry="17"/>
+    <ellipse cx="32" cy="32" rx="7" ry="17"/>
+    <path d="M15.5 27 H48.5 M15.5 37 H48.5"/>
+  </g>
+  <circle cx="32" cy="32" r="16.3" fill="none" stroke="#2b5f9e" stroke-width="1.2"/>
+</svg>
