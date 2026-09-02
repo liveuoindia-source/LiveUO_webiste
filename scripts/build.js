@@ -84,7 +84,9 @@ function buildBreadcrumb(html, pageUrl) {
 
 /* Every visible accordion entry, in page order. */
 function buildFaq(html) {
-  const re = /<div class="faq-item">\s*<button class="faq-q">([\s\S]*?)<span class="plus">[\s\S]*?<\/button>\s*<div class="faq-a">([\s\S]*?)<\/div>\s*<\/div>/g;
+  // The first accordion entry on a page carries `faq-item open`. Matching only
+  // the bare class dropped that question from the schema on every such page.
+  const re = /<div class="faq-item(?: [^"]*)?">\s*<button class="faq-q">([\s\S]*?)<span class="plus">[\s\S]*?<\/button>\s*<div class="faq-a">([\s\S]*?)<\/div>\s*<\/div>/g;
   const questions = [];
   let m;
   while ((m = re.exec(html)) !== null) {

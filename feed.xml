@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>LiVEUO — pharCare pharmacy software guides</title>
+<link>https://www.liveuo.com/resources/blog/</link>
+<description>Daily guides on pharmacy billing, GST compliance, and inventory control for Indian pharmacies.</description>
+<language>en-in</language>
+<lastBuildDate>Wed, 02 Sep 2026 10:03:28 GMT</lastBuildDate>
+<atom:link href="https://www.liveuo.com/feed.xml" rel="self" type="application/rss+xml"/>
+<item><title>How to reduce expired-stock write-offs in a retail pharmacy</title><link>https://www.liveuo.com/resources/blog/reduce-expired-stock-write-offs-pharmacy/</link><guid isPermaLink="true">https://www.liveuo.com/resources/blog/reduce-expired-stock-write-offs-pharmacy/</guid><description>Expired stock is pure margin loss and most of it is preventable. Batch discipline, near-expiry alerts, supplier return windows, and the buying that causes it.</description><category>Inventory</category><pubDate>Wed, 02 Sep 2026 09:00:00 GMT</pubDate></item>
+<item><title>GST invoicing for pharmacies: a practical guide</title><link>https://www.liveuo.com/resources/blog/gst-invoicing-for-pharmacies/</link><guid isPermaLink="true">https://www.liveuo.com/resources/blog/gst-invoicing-for-pharmacies/</guid><description>Multiple tax slabs on one bill, batch-level MRP, credit notes for expiry returns, and GSTR-ready exports. A working guide to GST invoicing in an Indian retail pharmacy.</description><category>GST &amp; Tax</category><pubDate>Tue, 01 Sep 2026 09:00:00 GMT</pubDate></item>
+<item><title>Schedule H, H1 and H1X: what pharmacy software must track</title><link>https://www.liveuo.com/resources/blog/schedule-h-h1-h1x-pharmacy-billing-software/</link><guid isPermaLink="true">https://www.liveuo.com/resources/blog/schedule-h-h1-h1x-pharmacy-billing-software/</guid><description>Schedule H, H1 and H1X carry different record-keeping duties. Exactly what your pharmacy billing software must capture at the counter, and for how long.</description><category>Compliance</category><pubDate>Mon, 31 Aug 2026 09:00:00 GMT</pubDate></item>
+</channel>
+</rss>

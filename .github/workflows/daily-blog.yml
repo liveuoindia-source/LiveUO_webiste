@@ -1,0 +1,132 @@
+name: Daily pharCare blog post
+
+# Publishes one article from content/blog/posts/ each morning, commits the
+# generated pages, and notifies search engines.
+#
+# Times are UTC. 01:30 UTC = 07:00 IST, so the post is live before the
+# working day starts in India.
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  pull_request:
+    paths:
+      - "content/blog/**"
+      - "scripts/**"
+      - "assets/blog.css"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Show what would publish without committing"
+        type: boolean
+        default: false
+      date:
+        description: "Publish date override (YYYY-MM-DD), for backfills"
+        type: string
+        required: false
+
+concurrency:
+  # Never let two runs publish on the same day or race on the same commit.
+  group: daily-blog
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # No npm install: the blog scripts use only the Node standard library,
+      # so the daily job cannot be broken by a dependency change.
+      - name: Validate the post bank
+        run: node scripts/check-blog.js
+
+      - name: Dry run
+        if: ${{ inputs.dry_run }}
+        run: node scripts/publish-daily-post.js --dry-run
+
+      - name: Publish today's post
+        id: publish
+        if: ${{ !inputs.dry_run }}
+        run: |
+          set +e
+          if [ -n "${{ inputs.date }}" ]; then
+            node scripts/publish-daily-post.js --date="${{ inputs.date }}"
+          else
+            node scripts/publish-daily-post.js
+          fi
+          status=$?
+          set -e
+          # 3 = bank empty, 4 = already published today. Neither is a failure,
+          # but both should be visible rather than silently succeeding.
+          if [ $status -eq 3 ]; then
+            echo "::warning::Post bank is empty - add articles to content/blog/posts/"
+            echo "outcome=empty" >> "$GITHUB_OUTPUT"
+          elif [ $status -eq 4 ]; then
+            echo "::notice::A post was already published today - nothing to do."
+            echo "outcome=already" >> "$GITHUB_OUTPUT"
+          elif [ $status -ne 0 ]; then
+            exit $status
+          else
+            echo "outcome=published" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: ${{ steps.publish.outputs.outcome == 'published' }}
+        run: |
+          git config user.name "liveuo-blog-bot"
+          git config user.email "info@liveuo.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git commit -m "blog: publish ${{ steps.publish.outputs.slug }}" \
+                     -m "${{ steps.publish.outputs.title }}" \
+                     -m "${{ steps.publish.outputs.url }}"
+          # Another run (or a human) may have pushed since checkout.
+          git pull --rebase origin ${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Notify search engines
+        if: ${{ steps.publish.outputs.outcome == 'published' }}
+        env:
+          GOOGLE_INDEXING_CREDENTIALS: ${{ secrets.GOOGLE_INDEXING_CREDENTIALS }}
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: node scripts/ping-indexers.js
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Daily blog run"
+            echo ""
+            echo "- Outcome: \`${{ steps.publish.outputs.outcome || 'dry-run' }}\`"
+            if [ -n "${{ steps.publish.outputs.url }}" ]; then
+              echo "- Published: [${{ steps.publish.outputs.title }}](${{ steps.publish.outputs.url }})"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Runs on every PR touching the blog, so a broken post is caught before merge.
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node scripts/check-blog.js
+      - run: node scripts/build.js --check

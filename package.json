@@ -7,8 +7,13 @@
     "dev": "node server.js",
     "start": "node server.js",
     "build": "node scripts/build.js && node scripts/check-placeholders.js",
-    "check": "node scripts/build.js --check && node scripts/check-placeholders.js",
-    "test": "npm run check"
+    "check": "node scripts/build.js --check && node scripts/check-placeholders.js && node scripts/check-blog.js",
+    "test": "npm run check",
+    "blog:check": "node scripts/check-blog.js",
+    "blog:next": "node scripts/publish-daily-post.js --dry-run",
+    "blog:publish": "node scripts/publish-daily-post.js",
+    "blog:regen": "node scripts/publish-daily-post.js --regenerate",
+    "blog:ping": "node scripts/ping-indexers.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
