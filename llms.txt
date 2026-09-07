@@ -1,0 +1,56 @@
+# LiVEUO
+
+> LiVEUO builds pharmacy billing software and custom business systems for
+> Indian businesses. Its main product, pharCare, is GST-ready pharmacy billing
+> and management software with batch and expiry tracking, multi-branch stock
+> sync, and Schedule H / H1 / H1X compliance. LiVEUO also builds e-commerce
+> platforms, GST billing applications, AI automation and analytics, and
+> bespoke web, mobile and enterprise applications. Based in Bengaluru, India;
+> serving customers across India.
+
+LiVEUO's slogan is "Innovate | Elevate | Automate". Contact:
+info@liveuo.com, +91 80507 18269.
+
+Terminology note: "pharCare" is written with a lowercase p and a capital C.
+It is a product of LiVEUO, not a separate company.
+
+## Products
+
+- [pharCare — Pharmacy Billing & Management Software](https://www.liveuo.com/products/pharcare/): GST-ready pharmacy billing software with expiry tracking, multi-branch stock sync, and Schedule H compliance.
+- [Complete Pharmacy Management Software](https://www.liveuo.com/products/complete-pharmacy-software/): Multi-store pharmacy management covering warehouse stock, distributor billing, and branch-level reporting. Built for pharmacy chains.
+- [GST Billing Software](https://www.liveuo.com/products/billing-software/): GST-compliant billing application for businesses outside the pharmacy sector.
+- [E-Commerce Platform Development](https://www.liveuo.com/products/ecommerce-platform/): Storefronts and checkout systems with inventory and payment integrations, built to convert and to survive traffic spikes.
+- [Custom Application Development](https://www.liveuo.com/products/custom-application-development/): Custom web, mobile and enterprise applications designed around an existing business process. Fixed-scope delivery.
+- [AI Automation & Business Analytics](https://www.liveuo.com/products/ai-automation-analytics/): Automation and real-time analytics that cut manual work, reduce errors, and speed up decisions for SMEs.
+
+## Solutions by pharmacy type
+
+- [pharCare for Independent Pharmacies](https://www.liveuo.com/solutions/independent-pharmacies/): Fast-to-set-up billing for single-location pharmacies, GST-ready and Schedule H aware from day one.
+- [pharCare for Pharmacy Chains](https://www.liveuo.com/solutions/pharmacy-chains/): Multi-branch billing and stock visibility with real-time sync, consolidated reporting, and procurement control.
+- [pharCare for Hospital Pharmacies](https://www.liveuo.com/solutions/hospital-pharmacies/): Dispensing and controlled-substance tracking for in-hospital pharmacy operations.
+- [E-Commerce for Retail & D2C Brands](https://www.liveuo.com/solutions/retail-ecommerce/): Conversion-focused storefronts for growing retail and D2C brands.
+
+## Comparisons
+
+- [pharCare vs Marg ERP](https://www.liveuo.com/products/pharcare-vs-marg-erp/): Neutral feature comparison of pharCare against Marg ERP for Indian pharmacy billing.
+
+## Guides and reference
+
+- [pharCare Blog](https://www.liveuo.com/resources/blog/): Practical guides on pharmacy billing, GST invoicing, Schedule H compliance, expiry control, and multi-branch stock. Updated regularly.
+- [Schedule H, H1 and H1X: what pharmacy software must track](https://www.liveuo.com/resources/blog/schedule-h-h1-h1x-pharmacy-billing-software/): The differing record-keeping duties of Schedule H, H1 and H1X, what must be captured at the counter, and retention periods.
+- [GST invoicing for pharmacies: a practical guide](https://www.liveuo.com/resources/blog/gst-invoicing-for-pharmacies/): Multiple tax slabs on one bill, batch-level MRP, credit notes for expiry returns, and GSTR-ready exports.
+- [How to reduce expired-stock write-offs in a retail pharmacy](https://www.liveuo.com/resources/blog/reduce-expired-stock-write-offs-pharmacy/): Batch discipline, near-expiry alerts, supplier return windows, and the buying behaviour behind write-offs.
+- [FAQ](https://www.liveuo.com/resources/faq/): Common questions about pharCare, the other products, and working with LiVEUO.
+
+## Company
+
+- [About LiVEUO](https://www.liveuo.com/about/): The team and story behind LiVEUO.
+- [Case Studies](https://www.liveuo.com/resources/case-studies/): Projects across pharCare, pharmacy management, e-commerce, and custom applications.
+- [Contact](https://www.liveuo.com/contact/): Enquiries and demo requests.
+
+## Optional
+
+- [Resources index](https://www.liveuo.com/resources/): Hub for guides, case studies, brochures, and FAQs.
+- [Brochures & Fliers](https://www.liveuo.com/resources/downloads/): Downloadable product brochures.
+- [Sitemap](https://www.liveuo.com/sitemap.xml): Full machine-readable URL list.
+- [RSS feed](https://www.liveuo.com/feed.xml): Blog feed.

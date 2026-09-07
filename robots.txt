@@ -1,10 +1,87 @@
+# https://www.liveuo.com/robots.txt
+
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-# Legacy paths and build artifacts are handled by 301s / noindex in web.config
-# rather than Disallow — a blocked URL cannot be crawled, so Google would
-# never read the signal telling it where the page moved to.
+# Legacy paths and build artifacts are handled by 301s and noindex rather than
+# Disallow — a blocked URL cannot be crawled, so Google would never read the
+# signal telling it where the page moved to. Those redirects are currently
+# served by Cloudflare Redirect Rules (see docs/liveuo-relaunch/).
+
+# ---------------------------------------------------------------------------
+# AI / LLM crawlers — explicitly allowed.
+#
+# These are deliberately opted IN: being readable by answer engines is how
+# this site earns citations in ChatGPT, Perplexity, Google AI Overviews,
+# Claude and Gemini. See /llms.txt for a curated index written for them.
+#
+# NOTE ON SEMANTICS: a crawler that matches its own User-agent block ignores
+# the "*" block completely. Every block below therefore repeats the /admin/
+# and /api/ disallows — without that repetition these bots would be granted
+# access to exactly the paths the wildcard block protects.
+# ---------------------------------------------------------------------------
+
+# OpenAI — ChatGPT search, browsing, and training
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Anthropic — Claude search, user-initiated fetches, and indexing
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Perplexity
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Google — Gemini and AI Overviews grounding.
+# Distinct from Googlebot: removing this token does not affect normal Search
+# ranking, and blocking it would forfeit AI Overview citations.
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Apple Intelligence / Siri grounding
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Microsoft Copilot
+User-agent: BingBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Common Crawl — the corpus behind many open models
+User-agent: CCBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Other answer engines and assistants
+User-agent: Meta-ExternalAgent
+User-agent: Amazonbot
+User-agent: DuckAssistBot
+User-agent: MistralAI-User
+User-agent: YouBot
+User-agent: cohere-ai
+Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 Sitemap: https://www.liveuo.com/sitemap.xml
