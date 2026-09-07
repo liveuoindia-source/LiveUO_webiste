@@ -100,6 +100,54 @@ jobs:
           git pull --rebase origin ${{ github.ref_name }}
           git push origin HEAD:${{ github.ref_name }}
 
+      # Committing to main does NOT make a post visible. The IIS host serves
+      # its own clone, which only updates when Plesk is told to pull. Without
+      # this step the post sits in main unseen - that is how five days of posts
+      # (3-7 Sep 2026) were live in git while every URL 404ed on the site.
+      - name: Deploy to Plesk
+        if: ${{ steps.publish.outputs.outcome == 'published' }}
+        env:
+          PLESK_DEPLOY_WEBHOOK: ${{ secrets.PLESK_DEPLOY_WEBHOOK }}
+        run: |
+          if [ -z "$PLESK_DEPLOY_WEBHOOK" ]; then
+            echo "::error::PLESK_DEPLOY_WEBHOOK is not set. The post is committed but will never reach the site."
+            exit 1
+          fi
+          code=$(curl -sS -o deploy-response.txt -w "%{http_code}" \
+                      --retry 3 --retry-delay 10 --retry-all-errors \
+                      --max-time 120 -X POST "$PLESK_DEPLOY_WEBHOOK")
+          echo "Plesk webhook responded: $code"
+          head -c 500 deploy-response.txt || true
+          rm -f deploy-response.txt
+          case "$code" in
+            2*) echo "Deploy requested." ;;
+            *)  echo "::error::Plesk deploy webhook returned $code"; exit 1 ;;
+          esac
+
+      # A 2xx only means Plesk ACCEPTED the request - the pull runs
+      # asynchronously and can still fail. Polling the real URL is what turns a
+      # silent deploy failure into a red build today, rather than a 404 someone
+      # notices in Search Console weeks later.
+      - name: Wait for the post to be live
+        if: ${{ steps.publish.outputs.outcome == 'published' }}
+        run: |
+          url="${{ steps.publish.outputs.url }}"
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$url" || echo 000)
+            echo "attempt $i/20: HTTP $code  $url"
+            if [ "$code" = "200" ]; then
+              echo "Live after $i attempt(s)."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::$url did not return 200 within ~5 minutes - deploy likely failed."
+          exit 1
+
+      # Deliberately AFTER the deploy and the liveness check. Submitting a URL
+      # that 404s asks Google to crawl a missing page, which is a negative
+      # quality signal. A failure above skips this step: GitHub applies an
+      # implicit success() to any `if` that has no status-check function.
       - name: Notify search engines
         if: ${{ steps.publish.outputs.outcome == 'published' }}
         env:
@@ -116,6 +164,15 @@ jobs:
             echo "- Outcome: \`${{ steps.publish.outputs.outcome || 'dry-run' }}\`"
             if [ -n "${{ steps.publish.outputs.url }}" ]; then
               echo "- Published: [${{ steps.publish.outputs.title }}](${{ steps.publish.outputs.url }})"
+              # Re-checked here rather than reusing the wait step's result, so
+              # the summary reports what is actually serving right now even when
+              # an earlier step failed and this one still runs under always().
+              live=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
+                     "${{ steps.publish.outputs.url }}" || echo 000)
+              echo "- Live on site: \`HTTP $live\`"
+              if [ "$live" != "200" ]; then
+                echo "- :warning: The post is in git but NOT on the site. Check the Plesk deploy."
+              fi
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
