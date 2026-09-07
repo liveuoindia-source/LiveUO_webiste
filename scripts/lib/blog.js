@@ -389,7 +389,13 @@ function renderIndex(live) {
     '<a class="btn btn-light" style="margin-top:10px" href="/contact/">Book a free demo</a></div>' +
     '<div class="cta-contact"><div>EMAIL<strong>info@liveuo.com</strong></div>' +
     '<div>PHONE<strong><a href="tel:+918050718269">+91 80507 18269</a></strong></div>' +
-    "<div>OFFICE<strong>Bengaluru, India</strong></div></div></div></div></section>" +
+    // NAP must match the PostalAddress in the homepage JSON-LD, the visible
+    // address on /contact/, and the Google Business Profile listing. Unlike the
+    // nav and footer above, this block is not lifted from a live page, so it
+    // does not follow an address change automatically - update it here too.
+    "<div>OFFICE<strong>3500, 3rd Main Rd, 1st Phase Girinagar, Phase 4, " +
+    "Banashankari 3rd Stage, Banashankari, Bengaluru, Karnataka 560085, India" +
+    "</strong></div></div></div></div></section>" +
     chrome.footer +
     chrome.scripts +
     "</body></html>"
