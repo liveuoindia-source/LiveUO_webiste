@@ -24,6 +24,29 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 app.disable("x-powered-by");
 
+/*  Strip a leading "/server.js" from the path.
+ *
+ *  iisnode routes /server.js/<anything> to this app with no rewrite rule at
+ *  all - the remainder arrives as PATH_INFO. That matters because this host
+ *  has no IIS URL Rewrite module: a <rewrite> section makes IIS refuse the
+ *  whole config and answer 500 site-wide, which took the site down twice.
+ *
+ *  So the tidy URL is produced one layer earlier - a Cloudflare Transform
+ *  Rule rewrites /viewer/x to /server.js/viewer/x before the request reaches
+ *  IIS - and this middleware removes the prefix again so every route matches
+ *  as normal. A visitor hitting /server.js/viewer/x directly works too.
+ *
+ *  Harmless once URL Rewrite is installed: the prefix simply never appears,
+ *  and this becomes a no-op rather than something to remember to remove.
+ */
+app.use((req, res, next) => {
+  if (req.url === "/server.js" || req.url.startsWith("/server.js/") || req.url.startsWith("/server.js?")) {
+    req.url = req.url.slice("/server.js".length) || "/";
+    if (req.url[0] !== "/") req.url = "/" + req.url;
+  }
+  next();
+});
+
 // Legacy URL structure -> new IA. 301s run before static serving so both
 // direct visits and crawlers get a real redirect, not just the meta-refresh
 // stub left in the old file for defense-in-depth.
