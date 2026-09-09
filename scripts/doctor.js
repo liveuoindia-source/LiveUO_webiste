@@ -80,4 +80,56 @@ try {
   console.log("  server/db.js FAILED: " + err.message);
 }
 
-console.log("\nDone.\n");
+/*  Last, because it is the only asynchronous check.
+ *
+ *  Sending the OTP is the one operation that leaves the server, so it fails
+ *  for reasons nothing else does - many hosts block outbound port 587 at the
+ *  firewall, and from inside the app that is indistinguishable from a wrong
+ *  password. verify() authenticates without sending anything, which separates
+ *  the two. No secret is printed either way.
+ */
+console.log("\n=== SMTP =====================================================");
+
+if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  line("status", "NOT CONFIGURED - SMTP_HOST/USER/PASS missing from .env");
+  line("effect", "the viewer answers 'Could not send the code right now'");
+  console.log("\nDone.\n");
+} else {
+  line("host", process.env.SMTP_HOST + ":" + (process.env.SMTP_PORT || 587));
+  line("user", process.env.SMTP_USER);
+
+  let nodemailer = null;
+  try {
+    nodemailer = require("nodemailer");
+  } catch (err) {
+    line("nodemailer", "MISSING - run NPM install");
+    console.log("\nDone.\n");
+  }
+
+  if (nodemailer) {
+    nodemailer
+      .createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure:
+          String(process.env.SMTP_SECURE).toLowerCase() === "true" ||
+          Number(process.env.SMTP_PORT) === 465,
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        connectionTimeout: 15000
+      })
+      .verify()
+      .then(() => {
+        line("connection", "OK - credentials accepted, mail can be sent");
+      })
+      .catch((err) => {
+        line("connection", "FAILED - " + err.message);
+        if (/ETIMEDOUT|ECONNREFUSED|ENOTFOUND|timeout|EHOSTUNREACH/i.test(err.message)) {
+          line("likely cause", "outbound SMTP blocked by the host firewall, NOT a bad password");
+          line("what to do", "ask the host to open outbound TCP 587, or use their own relay");
+        } else if (/auth|credential|username|password|BadCredentials|535/i.test(err.message)) {
+          line("likely cause", "the Gmail app password is wrong or has been revoked");
+        }
+      })
+      .finally(() => console.log("\nDone.\n"));
+  }
+}
