@@ -7,9 +7,3 @@ uploads/
 # and the access log. None of it belongs in a public repo.
 server/private/
 
-# Server configuration, owned by Plesk/IIS - NOT by this repo.
-# Plesk writes its own web.config containing the iisnode handler when
-# Node.js is enabled. Tracking this file meant every git pull overwrote
-# that handler and silently unwired the Node app. Template kept as
-# web.config.iisnode, applied by hand.
-web.config
