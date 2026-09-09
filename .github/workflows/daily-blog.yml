@@ -113,9 +113,16 @@ jobs:
             echo "::error::PLESK_DEPLOY_WEBHOOK is not set. The post is committed but will never reach the site."
             exit 1
           fi
+          # A body is required, not optional: Plesk's web-hook.php answers
+          # 411 Length Required to a bodyless POST, so `-X POST` alone never
+          # triggers a deploy. Verified against the live endpoint - `-d '{}'`
+          # returns 204. GitHub's own webhooks work because they always post
+          # a JSON payload.
           code=$(curl -sS -o deploy-response.txt -w "%{http_code}" \
                       --retry 3 --retry-delay 10 --retry-all-errors \
-                      --max-time 120 -X POST "$PLESK_DEPLOY_WEBHOOK")
+                      --max-time 120 \
+                      -X POST -H "Content-Type: application/json" -d '{}' \
+                      "$PLESK_DEPLOY_WEBHOOK")
           echo "Plesk webhook responded: $code"
           head -c 500 deploy-response.txt || true
           rm -f deploy-response.txt
