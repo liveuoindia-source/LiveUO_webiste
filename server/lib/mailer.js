@@ -1,3 +1,18 @@
+/*  Two ways out, chosen by which credentials are present.
+ *
+ *  The production host blocks outbound SMTP: connecting to smtp.gmail.com:587
+ *  fails with EACCES, meaning the operating system refuses to open the socket
+ *  at all - the packet never leaves the machine. No SMTP credentials can fix
+ *  that, and neither can a different port.
+ *
+ *  Outbound HTTPS does work there (reCAPTCHA verification succeeds), so mail
+ *  goes over the Resend HTTP API on port 443 instead. SMTP is kept for local
+ *  development, where it works fine and needs no third-party account.
+ *
+ *  RESEND_API_KEY set  -> HTTPS API
+ *  otherwise           -> SMTP, as before
+ */
+
 const nodemailer = require("nodemailer");
 
 let transporter = null;
@@ -19,18 +34,62 @@ function getTransporter() {
   return transporter;
 }
 
-async function sendContactNotification({ name, email, company, service, message }) {
+function fromAddress() {
+  // MAIL_FROM wins: with Resend the sender must be on the verified domain,
+  // which is not necessarily the SMTP username used in development.
+  return process.env.MAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER;
+}
+
+async function sendViaResend({ to, replyTo, subject, text, html }) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + process.env.RESEND_API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: fromAddress(),
+      to: [to],
+      subject,
+      text,
+      html,
+      ...(replyTo ? { reply_to: replyTo } : {})
+    })
+  });
+
+  if (!res.ok) {
+    // Surface Resend's own message: "domain is not verified" and "invalid
+    // api key" are the two likely failures and they need different fixes.
+    const detail = await res.text().catch(() => "");
+    throw new Error("Resend API returned " + res.status + ": " + detail.slice(0, 300));
+  }
+}
+
+/*  Single exit point for outbound mail, so the two callers below do not each
+ *  have to know which transport is in play. */
+async function deliver({ to, replyTo, subject, text, html }) {
+  if (process.env.RESEND_API_KEY) {
+    if (!fromAddress()) throw new Error("MAIL_FROM is not set — required when sending via Resend");
+    return sendViaResend({ to, replyTo, subject, text, html });
+  }
+
   const t = getTransporter();
-  if (!t) throw new Error("SMTP is not configured — set SMTP_HOST, SMTP_USER, SMTP_PASS in .env");
+  if (!t) {
+    throw new Error(
+      "No mail transport configured — set RESEND_API_KEY (production), or SMTP_HOST/USER/PASS (local)"
+    );
+  }
+  return t.sendMail({ from: fromAddress(), to, replyTo, subject, text, html });
+}
+
+async function sendContactNotification({ name, email, company, service, message }) {
 
   const to = process.env.CONTACT_TO_EMAIL || process.env.SMTP_USER;
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
 
   const escapeHtml = (s) =>
     String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  await t.sendMail({
-    from,
+  await deliver({
     to,
     replyTo: email,
     subject: `New contact form submission from ${name}`,
@@ -61,15 +120,10 @@ async function sendContactNotification({ name, email, company, service, message 
  *  a forwarded email should not hand over access on its own.
  */
 async function sendViewerOtp({ email, code, title, ttlMinutes }) {
-  const t = getTransporter();
-  if (!t) throw new Error("SMTP is not configured — set SMTP_HOST, SMTP_USER, SMTP_PASS in .env");
-
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const escapeHtml = (s) =>
     String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  await t.sendMail({
-    from,
+  await deliver({
     to: email,
     subject: `Your access code for ${title}`,
     text: [
