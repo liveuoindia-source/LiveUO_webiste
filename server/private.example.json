@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "Template for server/private/viewers.json, which is gitignored because it",
+    "holds real client email addresses. Copy this file to",
+    "server/private/viewers.json on the server and edit it by hand.",
+    "",
+    "Each key is the URL slug: this entry is served at",
+    "https://www.liveuo.com/viewer/project-requirement/",
+    "",
+    "  title    shown in the header and in the OTP email",
+    "  file     filename inside server/private/. Never served statically;",
+    "           only ever streamed by an authenticated session.",
+    "  allow    exact email addresses permitted. Case-insensitive.",
+    "           There is no wildcard or domain match, deliberately.",
+    "  expires  YYYY-MM-DD. After this date the document behaves exactly",
+    "           as though it does not exist - the page 404s.",
+    "",
+    "Changes take effect immediately; no restart is needed.",
+    "Delete this _comment key in the real file."
+  ],
+
+  "project-requirement": {
+    "title": "LiVEUO — Project Requirement",
+    "file": "project-requirement.pdf",
+    "allow": ["client@example.com"],
+    "expires": "2026-12-31"
+  }
+}

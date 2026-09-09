@@ -2,3 +2,7 @@ node_modules/
 .env
 data/
 uploads/
+
+# Secure document viewer: the PDFs themselves, the client email allow-list,
+# and the access log. None of it belongs in a public repo.
+server/private/

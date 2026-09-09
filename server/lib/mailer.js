@@ -53,4 +53,43 @@ async function sendContactNotification({ name, email, company, service, message 
   });
 }
 
-module.exports = { sendContactNotification };
+/*  One-time passcode for the secure document viewer.
+ *
+ *  Sent only to an address already on that document's allow-list, so this can
+ *  never be used to mail an arbitrary recipient. The code is the whole secret,
+ *  so the mail carries no link that would log the recipient straight in -
+ *  a forwarded email should not hand over access on its own.
+ */
+async function sendViewerOtp({ email, code, title, ttlMinutes }) {
+  const t = getTransporter();
+  if (!t) throw new Error("SMTP is not configured — set SMTP_HOST, SMTP_USER, SMTP_PASS in .env");
+
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const escapeHtml = (s) =>
+    String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  await t.sendMail({
+    from,
+    to: email,
+    subject: `Your access code for ${title}`,
+    text: [
+      `Your one-time access code is: ${code}`,
+      "",
+      `It expires in ${ttlMinutes} minutes and can be used once.`,
+      "",
+      "If you did not request this, you can ignore this email — the code is",
+      "useless without the page it was requested from.",
+      "",
+      "— LiVEUO"
+    ].join("\n"),
+    html: [
+      `<p>Your one-time access code for <strong>${escapeHtml(title)}</strong> is:</p>`,
+      `<p style="font-size:30px;letter-spacing:7px;font-weight:700;margin:22px 0">${escapeHtml(code)}</p>`,
+      `<p>It expires in ${ttlMinutes} minutes and can be used once.</p>`,
+      `<p style="color:#666;font-size:13px">If you did not request this, ignore this email — the code is useless without the page it was requested from.</p>`,
+      `<p style="color:#666;font-size:13px">— LiVEUO</p>`
+    ].join("\n")
+  });
+}
+
+module.exports = { sendContactNotification, sendViewerOtp };

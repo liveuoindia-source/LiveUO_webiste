@@ -4,6 +4,7 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Legacy paths and build artifacts are handled by 301s and noindex rather than
 # Disallow — a blocked URL cannot be crawled, so Google would never read the
@@ -30,6 +31,7 @@ User-agent: GPTBot
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Anthropic — Claude search, user-initiated fetches, and indexing
 User-agent: ClaudeBot
@@ -39,6 +41,7 @@ User-agent: anthropic-ai
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Perplexity
 User-agent: PerplexityBot
@@ -46,6 +49,7 @@ User-agent: Perplexity-User
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Google — Gemini and AI Overviews grounding.
 # Distinct from Googlebot: removing this token does not affect normal Search
@@ -54,24 +58,28 @@ User-agent: Google-Extended
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Apple Intelligence / Siri grounding
 User-agent: Applebot-Extended
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Microsoft Copilot
 User-agent: BingBot
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Common Crawl — the corpus behind many open models
 User-agent: CCBot
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 # Other answer engines and assistants
 User-agent: Meta-ExternalAgent
@@ -83,5 +91,6 @@ User-agent: cohere-ai
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /viewer/
 
 Sitemap: https://www.liveuo.com/sitemap.xml

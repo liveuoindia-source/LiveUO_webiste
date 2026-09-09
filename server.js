@@ -15,6 +15,8 @@ const downloadsPublicRouter = require("./server/routes/downloads-public");
 const contactPublicRouter = require("./server/routes/contact-public");
 const adminApiRouter = require("./server/routes/admin-api");
 const adminPagesRouter = require("./server/routes/admin-pages");
+const viewerApiRouter = require("./server/routes/viewer");
+const viewerPageRouter = require("./server/routes/viewer-page");
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 3000;
@@ -48,8 +50,57 @@ app.use(sessionMiddleware);
 
 app.use("/api", downloadsPublicRouter);
 app.use("/api", contactPublicRouter);
+app.use("/api", viewerApiRouter);
 app.use("/api/admin", adminApiRouter);
 app.use("/admin", adminPagesRouter);
+
+// Secure document viewer. Mounted BEFORE express.static so /viewer/<id> is
+// always resolved by this router - a stray viewer/ directory in the web root
+// must never be able to shadow it and serve a document ungated.
+app.use("/viewer", viewerPageRouter);
+
+/*  Everything below this point is served straight off disk, and ROOT is the
+ *  whole project - so without this guard express.static happily hands out
+ *  server/, the SQLite database, the blog source, and package.json. It was
+ *  doing exactly that: /server/auth.js and /server/private/<the gated PDF>
+ *  both answered 200, which made the document viewer's OTP gate pointless.
+ *
+ *  This used to be web.config's <hiddenSegments>, but that only ever applied
+ *  to IIS - and that file's own header records it being inert in production
+ *  anyway. Enforcing it here means the rule travels with the app.
+ *
+ *  Deny by prefix, not by extension: the point is that server/private/ is
+ *  unreachable whatever is put inside it.
+ */
+const BLOCKED_PREFIXES = [
+  "/server/", "/data/", "/uploads/", "/scripts/", "/content/",
+  "/node_modules/", "/docs/", "/.git/", "/.github/", "/.claude/",
+  // iisnode writes stdout/stderr here. Under the all-requests-to-node rewrite
+  // these would otherwise be readable over HTTP, and they contain stack traces.
+  "/iisnode-logs/", "/iisnode/"
+];
+const BLOCKED_EXACT = new Set([
+  "/server.js", "/package.json", "/package-lock.json", "/web.config"
+]);
+const BLOCKED_EXT = /\.(zip|db|db-wal|db-shm|bak|log|env|pem|key)$/i;
+
+app.use((req, res, next) => {
+  // decodeURIComponent so /server%2Fauth.js cannot slip past the prefix test.
+  let p;
+  try {
+    p = decodeURIComponent(req.path).replace(/\\/g, "/").toLowerCase();
+  } catch {
+    return res.status(400).end();
+  }
+  const blocked =
+    BLOCKED_EXACT.has(p) ||
+    BLOCKED_EXT.test(p) ||
+    BLOCKED_PREFIXES.some((prefix) => p.startsWith(prefix));
+
+  // 404, not 403: a 403 confirms the path exists.
+  if (blocked) return res.status(404).sendFile(path.join(ROOT, "404.html"), () => res.end());
+  next();
+});
 
 app.use(
   express.static(ROOT, {

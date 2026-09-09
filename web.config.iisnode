@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  iisnode configuration for LiVEUO.
+
+  TO USE: upload to the web root AS "web.config" (drop the .iisnode suffix).
+  It is kept under a different name in the repo so a deploy can never
+  overwrite whatever Plesk has generated without a deliberate decision.
+
+  BEFORE UPLOADING you MUST set the node.exe path below. The 500.1002 /
+  HRESULT 0x2 error means exactly one thing: iisnode could not find node.exe
+  at the path it was told to use. 0x2 is the Windows code for
+  ERROR_FILE_NOT_FOUND.
+
+  Find the real path on the server (Plesk > Tools & Settings > scheduled task,
+  or an RDP command prompt):
+
+      where node
+      dir "C:\Program Files (x86)\Plesk\Additional\nodejs" /b
+
+  Plesk usually keeps its Node builds under
+  C:\Program Files (x86)\Plesk\Additional\nodejs\<version>\node.exe
+  rather than the system-wide C:\Program Files\nodejs\node.exe.
+
+  EVERY request is routed to server.js on purpose. Express then serves the
+  static pages itself, which is what puts the deny-list in server.js in front
+  of server/private/, the SQLite database and the source files. Letting IIS
+  serve statics directly would be faster, but it would also bypass that guard
+  and re-expose the gated PDF - which is precisely the hole this closes.
+-->
+<configuration>
+  <system.webServer>
+
+    <handlers>
+      <add name="iisnode" path="server.js" verb="*" modules="iisnode" />
+    </handlers>
+
+    <iisnode
+      nodeProcessCommandLine="&quot;C:\Program Files\nodejs\node.exe&quot;"
+      loggingEnabled="true"
+      logDirectory="iisnode-logs"
+      devErrorsEnabled="true"
+      watchedFiles="web.config;*.js"
+      nodeProcessCountPerApplication="1" />
+
+    <rewrite>
+      <rules>
+        <!-- Let iisnode's own debug endpoint through untouched. -->
+        <rule name="iisnode-debug" stopProcessing="true">
+          <match url="^server.js\/debug[\/]?" />
+        </rule>
+
+        <!-- Everything else becomes a server.js request. No file/directory
+             precondition: static files are Express's job here, deliberately. -->
+        <rule name="all-to-node">
+          <match url="/*" />
+          <action type="Rewrite" url="server.js" />
+        </rule>
+      </rules>
+    </rewrite>
+
+    <security>
+      <requestFiltering>
+        <hiddenSegments>
+          <add segment="node_modules" />
+          <add segment="iisnode-logs" />
+          <add segment="server" />
+          <add segment="data" />
+        </hiddenSegments>
+        <fileExtensions>
+          <add fileExtension=".env" allowed="false" />
+          <add fileExtension=".zip" allowed="false" />
+          <add fileExtension=".db" allowed="false" />
+        </fileExtensions>
+      </requestFiltering>
+    </security>
+
+    <!-- Detailed errors while bringing this up. Switch errorMode back to
+         "Custom" once the app is confirmed running - detailed errors leak
+         stack traces and local paths to the public. -->
+    <httpErrors errorMode="Detailed" existingResponse="PassThrough" />
+
+  </system.webServer>
+</configuration>

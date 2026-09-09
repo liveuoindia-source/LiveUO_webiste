@@ -41,15 +41,31 @@ router.post("/contact", contactLimiter, async (req, res) => {
   }
 
   const ipHash = crypto.createHash("sha256").update(String(req.ip || "")).digest("hex");
-  const info = db
-    .prepare(
-      "INSERT INTO contact_messages (name, email, company, service, message, ip_hash) VALUES (?, ?, ?, ?, ?, ?)"
-    )
-    .run(name, email, company || null, service || null, message, ipHash);
+
+  /*  The archive row is best-effort. Email is how this message actually
+   *  reaches anyone, so a database that will not open - a native build wrong
+   *  for the host's Node version, most often - must not cost the visitor
+   *  their enquiry. Log it and carry on to the send. */
+  let rowId = null;
+  try {
+    rowId = db
+      .prepare(
+        "INSERT INTO contact_messages (name, email, company, service, message, ip_hash) VALUES (?, ?, ?, ?, ?, ?)"
+      )
+      .run(name, email, company || null, service || null, message, ipHash).lastInsertRowid;
+  } catch (err) {
+    console.error("Contact archive unavailable, sending anyway:", err.message);
+  }
 
   try {
     await sendContactNotification({ name, email, company, service, message });
-    db.prepare("UPDATE contact_messages SET email_sent = 1 WHERE id = ?").run(info.lastInsertRowid);
+    if (rowId !== null) {
+      try {
+        db.prepare("UPDATE contact_messages SET email_sent = 1 WHERE id = ?").run(rowId);
+      } catch (err) {
+        console.error("Could not mark contact message as sent:", err.message);
+      }
+    }
   } catch (err) {
     console.error("Contact email send failed:", err.message);
     return res.json({

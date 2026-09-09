@@ -185,9 +185,18 @@
                             ><input id="website" type="text" name="website" tabindex="-1" autocomplete="off" />
                         </div>
                         <div class="form-group">
-                            <div class="g-recaptcha" data-sitekey="6LdTD6UtAAAAAOFdZ4EuQxknnn47n-98btbKfMzx">
-                                
-                            </div>
+                            <!-- v2 INVISIBLE: nothing for the visitor to tick.
+                                 grecaptcha.execute() runs on submit and Google
+                                 calls onContactCaptcha with the token. -->
+                            <div
+                                id="rc"
+                                class="g-recaptcha"
+                                data-sitekey="6LeGObAtAAAAALdeeZC22bZIIEPTPx4prdVHsfKR"
+                                data-size="invisible"
+                                data-callback="onContactCaptcha"
+                                data-error-callback="onContactCaptchaError"
+                                data-expired-callback="onContactCaptchaError"
+                            ></div>
                         </div>
                         <p id="contact-form-status" role="status" style="min-height: 20px"></p>
                         <button
