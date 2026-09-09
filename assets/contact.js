@@ -10,6 +10,56 @@
         statusEl.style.color = isError ? "#c0392b" : "#2e7d32";
     }
 
+    /*  POST to the API, tolerating a host that cannot rewrite URLs.
+     *
+     *  This page is a static file served by IIS, so "/api/contact" only
+     *  reaches Node when something rewrites it - a Cloudflare Transform Rule,
+     *  or the IIS URL Rewrite module. Where neither is in place IIS answers
+     *  the request itself and the form fails with a 404 the visitor cannot
+     *  act on.
+     *
+     *  iisnode is always reachable at /server.js/<path>, and server.js strips
+     *  that prefix, so the fallback works on either configuration. The first
+     *  path is tried first deliberately: once the rewrite is working this
+     *  succeeds immediately and the fallback is never used, so nothing has to
+     *  be undone later.
+     *
+     *  The body is read as text before parsing - an unrewritten request comes
+     *  back as an empty body or an IIS HTML page, and JSON.parse on that
+     *  reports a syntax error rather than anything the visitor can act on.
+     */
+    function postToApi(path, payload) {
+        function attempt(url) {
+            return fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(function (res) {
+                return res.text().then(function (raw) {
+                    var data = null;
+                    try {
+                        data = raw ? JSON.parse(raw) : null;
+                    } catch (err) {
+                        data = null;
+                    }
+                    return { ok: res.ok, status: res.status, json: data !== null, data: data || {} };
+                });
+            });
+        }
+
+        return attempt(path).then(function (result) {
+            if (result.json) return result;
+            // Not JSON: the request never reached the app. Retry via iisnode.
+            return attempt("/server.js" + path).then(function (viaNode) {
+                if (viaNode.json) return viaNode;
+                return {
+                    ok: false,
+                    data: { error: "The contact service is unavailable right now. Please email info@liveuo.com." }
+                };
+            });
+        });
+    }
+
     /*  reCAPTCHA v2 INVISIBLE. There is no checkbox: submitting starts the
      *  challenge, and Google calls window.onContactCaptcha with a token once it
      *  passes. The send therefore happens in that callback, not here. */
@@ -60,16 +110,7 @@
         submitBtn.disabled = true;
         submitBtn.textContent = "Sending…";
 
-        fetch("/api/contact", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        })
-            .then(function (res) {
-                return res.json().then(function (data) {
-                    return { ok: res.ok, data: data };
-                });
-            })
+        postToApi("/api/contact", payload)
             .then(function (result) {
                 if (!result.ok) {
                     throw new Error(result.data.error || "Something went wrong. Please try again.");
