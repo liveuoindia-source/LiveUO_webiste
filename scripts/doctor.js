@@ -125,7 +125,7 @@ if (process.env.RESEND_API_KEY) {
     })
     .catch((err) => line("api key", "could not be checked - " + err.message))
     .finally(() => console.log("\nDone.\n"));
-} else if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+} else if (!process.env.SMTP_HOST) {
   line("status", "NOT CONFIGURED - SMTP_HOST/USER/PASS missing from .env");
   line("effect", "the viewer answers 'Could not send the code right now'");
   console.log("\nDone.\n");
@@ -158,10 +158,17 @@ if (process.env.RESEND_API_KEY) {
       })
       .catch((err) => {
         line("connection", "FAILED - " + err.message);
+        const isLocal = /^(localhost|127\.0\.0\.1|::1)$/i.test(String(process.env.SMTP_HOST || "").trim());
+
+        if (isLocal && /ECONNREFUSED|ENOTFOUND/i.test(err.message)) {
+          // Nothing is listening. A firewall would not refuse a loopback
+          // connection, so this means no local mail server, not a block.
+          line("likely cause", "no mail server listening locally on this port");
+          line("what to do", "enable Mail for the domain in Plesk, or try port 587 / the server's mail hostname");
         // EACCES on connect is the clearest of these: the OS refused to open
         // the socket at all, so the packet never left the machine. That is a
         // local policy block, not anything to do with the remote server.
-        if (/EACCES|ETIMEDOUT|ECONNREFUSED|ENOTFOUND|timeout|EHOSTUNREACH|EPERM/i.test(err.message)) {
+        } else if (/EACCES|ETIMEDOUT|ECONNREFUSED|ENOTFOUND|timeout|EHOSTUNREACH|EPERM/i.test(err.message)) {
           line("likely cause", "outbound SMTP blocked by the host firewall, NOT a bad password");
           line("what to do", "use an HTTPS email API - port 443 is known to work here");
         } else if (/auth|credential|username|password|BadCredentials|535/i.test(err.message)) {

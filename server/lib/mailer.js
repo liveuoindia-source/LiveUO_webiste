@@ -19,17 +19,31 @@ let transporter = null;
 
 function getTransporter() {
   if (transporter) return transporter;
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    return null;
-  }
+  if (!process.env.SMTP_HOST) return null;
+
+  const port = Number(process.env.SMTP_PORT) || 587;
+
+  /*  Auth is optional. A host that blocks outbound SMTP to the internet
+   *  normally still permits its own mail server, and a local relay on
+   *  localhost:25 typically authenticates by source address rather than by
+   *  credentials - so requiring a username here would rule out the one SMTP
+   *  route such a host actually allows.
+   *
+   *  Likewise TLS: a loopback relay often has no certificate worth verifying,
+   *  and rejecting it would leave no usable option. Only relaxed for
+   *  localhost, where the traffic never leaves the machine; anything remote
+   *  keeps full verification.
+   */
+  const local = /^(localhost|127\.0\.0\.1|::1)$/i.test(process.env.SMTP_HOST.trim());
+
   transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: String(process.env.SMTP_SECURE).toLowerCase() === "true" || Number(process.env.SMTP_PORT) === 465,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
+    port,
+    secure: String(process.env.SMTP_SECURE).toLowerCase() === "true" || port === 465,
+    ...(process.env.SMTP_USER && process.env.SMTP_PASS
+      ? { auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } }
+      : {}),
+    ...(local ? { tls: { rejectUnauthorized: false }, ignoreTLS: port === 25 } : {})
   });
   return transporter;
 }
