@@ -147,6 +147,19 @@ router.get("/:docId", (req, res) => {
   var $ = function (id) { return document.getElementById(id); };
   var viewer = null;
 
+  /*  API calls must be made relative to however this page was reached.
+   *
+   *  Where no IIS URL Rewrite module exists, iisnode is addressed as
+   *  /server.js/<path>, so a page served at /server.js/viewer/x must call
+   *  /server.js/api/... - an absolute /api/... would miss Node entirely and
+   *  be answered by IIS. That 404 has an empty body under
+   *  httpErrors PassThrough, so res.json() fails with "Unexpected end of
+   *  JSON input" rather than anything that points at the real cause.
+   *
+   *  Resolves to "" for ordinary URLs, so this costs nothing once the
+   *  Cloudflare rewrite (or URL Rewrite) is in place. */
+  var API = location.pathname.indexOf("/server.js/") === 0 ? "/server.js" : "";
+
   if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "${PDFJS}/pdf.worker.min.js";
   }
@@ -161,7 +174,22 @@ router.get("/:docId", (req, res) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
-    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); });
+    }).then(function (r) {
+      // Read as text first. A response that is empty or is an HTML error page
+      // from the web server - rather than JSON from this app - would otherwise
+      // throw "Unexpected end of JSON input", which says nothing useful to the
+      // visitor and nothing useful to whoever is debugging it.
+      return r.text().then(function (raw) {
+        var data;
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch (err) {
+          data = { error: "The server returned an unexpected response (HTTP " + r.status + "). Please try again." };
+          return { ok: false, data: data };
+        }
+        return { ok: r.ok, data: data };
+      });
+    });
   }
 
   /* ---- step 1: request a code ----
@@ -188,7 +216,7 @@ router.get("/:docId", (req, res) => {
     var email = $("email").value.trim();
     msg($("m1"), "Sending…");
 
-    post("/api/viewer/request-otp", { docId: DOC_ID, email: email, "g-recaptcha-response": token })
+    post(API + "/api/viewer/request-otp", { docId: DOC_ID, email: email, "g-recaptcha-response": token })
       .then(function (r) {
         if (!r.ok) throw new Error(r.data.error || "Something went wrong.");
         // Always advances, even for an address that is not allow-listed - the
@@ -228,7 +256,7 @@ router.get("/:docId", (req, res) => {
     $("verify").disabled = true;
     msg($("m2"), "Checking…");
 
-    post("/api/viewer/verify-otp", { docId: DOC_ID, email: $("sent-to").textContent, code: code })
+    post(API + "/api/viewer/verify-otp", { docId: DOC_ID, email: $("sent-to").textContent, code: code })
       .then(function (r) {
         if (!r.ok) throw new Error(r.data.error || "That code is not valid.");
         return openDocument();
@@ -239,7 +267,7 @@ router.get("/:docId", (req, res) => {
 
   /* ---- step 3: render ---- */
   function openDocument() {
-    return fetch("/api/viewer/session/" + encodeURIComponent(DOC_ID))
+    return fetch(API + "/api/viewer/session/" + encodeURIComponent(DOC_ID))
       .then(function (r) { return r.json(); })
       .then(function (s) {
         if (!s.authenticated) throw new Error("Session expired. Please request a new code.");
@@ -271,7 +299,7 @@ router.get("/:docId", (req, res) => {
   }
 
   function render() {
-    return pdfjsLib.getDocument({ url: "/api/viewer/doc/" + encodeURIComponent(DOC_ID) }).promise
+    return pdfjsLib.getDocument({ url: API + "/api/viewer/doc/" + encodeURIComponent(DOC_ID) }).promise
       .then(function (pdf) {
         var chain = Promise.resolve();
         for (var n = 1; n <= pdf.numPages; n++) {
@@ -319,7 +347,7 @@ router.get("/:docId", (req, res) => {
   }
 
   // Resume an existing session on reload rather than forcing a fresh code.
-  fetch("/api/viewer/session/" + encodeURIComponent(DOC_ID))
+  fetch(API + "/api/viewer/session/" + encodeURIComponent(DOC_ID))
     .then(function (r) { return r.json(); })
     .then(function (s) { if (s.authenticated) openDocument(); })
     .catch(function () {});
