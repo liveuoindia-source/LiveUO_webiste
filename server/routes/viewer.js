@@ -115,9 +115,16 @@ router.post("/viewer/request-otp", requestLimiter, async (req, res) => {
       });
       logAccess("otp-sent", req, { docId, email });
     } catch (err) {
-      // A real send failure is worth a 500 - the visitor would otherwise wait
-      // forever for a mail that is never coming.
+      /*  A real send failure is worth a 500 - the visitor would otherwise wait
+       *  forever for a mail that is never coming.
+       *
+       *  The reason is written to the access log as well as stdout: on IIS,
+       *  stdout goes wherever iisnode was configured to put it, which may be
+       *  nowhere, and this has already cost several rounds of guessing. The
+       *  log sits in server/private/, which is unreachable over HTTP but
+       *  readable in the host's file manager. */
       console.error("viewer: OTP send failed -", err.message);
+      logAccess("otp-send-failed", req, { docId, email, reason: err.message.slice(0, 400) });
       return res.status(500).json({ error: "Could not send the code right now. Please try again shortly." });
     }
   } else {
