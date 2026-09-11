@@ -54,6 +54,11 @@
       "slug": "barcode-scanning-pharmacy-billing",
       "date": "2026-09-10",
       "updated": "2026-09-10"
+    },
+    {
+      "slug": "pharmacy-purchase-order-automation",
+      "date": "2026-09-11",
+      "updated": "2026-09-11"
     }
   ]
 }
