@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "build": "node scripts/build.js && node scripts/check-placeholders.js",
+    "build": "node scripts/build-demos.js && node scripts/build.js && node scripts/check-placeholders.js",
     "check": "node scripts/build.js --check && node scripts/check-placeholders.js && node scripts/check-blog.js",
     "test": "npm run check",
     "blog:check": "node scripts/check-blog.js",
@@ -14,7 +14,9 @@
     "blog:publish": "node scripts/publish-daily-post.js",
     "blog:regen": "node scripts/publish-daily-post.js --regenerate",
     "blog:ping": "node scripts/ping-indexers.js",
-    "doctor": "node scripts/doctor.js"
+    "doctor": "node scripts/doctor.js",
+    "demos:encode": "node scripts/encode-demos.js",
+    "demos:build": "node scripts/build-demos.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

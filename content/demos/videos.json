@@ -1,0 +1,181 @@
+{
+  "page": {
+    "title": "pharCare demo videos",
+    "heading": "See pharCare in action",
+    "lede": "Short, step-by-step walkthroughs of pharCare, from signing in to GST reports. Watch them in order or jump to the module you need. Every step is captioned on screen, so no sound is needed.",
+    "description": "Watch pharCare demo videos: sign-in, medicine and supplier masters, purchase entry, POS billing, returns, batch and expiry tracking, stock control, GST reports and administration, step by step.",
+    "audio": false
+  },
+  "sections": [
+    {
+      "id": "getting-started",
+      "name": "Getting started"
+    },
+    {
+      "id": "masters",
+      "name": "Set up your masters"
+    },
+    {
+      "id": "buying-selling",
+      "name": "Buying & selling"
+    },
+    {
+      "id": "stock",
+      "name": "Stock & expiry"
+    },
+    {
+      "id": "reports-admin",
+      "name": "Reports & administration"
+    },
+    {
+      "id": "advanced",
+      "name": "Advanced"
+    }
+  ],
+  "videos": [
+    {
+      "slug": "login-and-getting-started",
+      "section": "getting-started",
+      "title": "Login & Getting Started",
+      "description": "Sign in with your own username and password, and find your way around the main menu.",
+      "duration": 89,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "dashboard",
+      "section": "getting-started",
+      "title": "Dashboard",
+      "description": "See today's business at a glance — sales, purchases, pending payments, low stock and expiry alerts.",
+      "duration": 70,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "item-master-add-medicine",
+      "section": "masters",
+      "title": "Item Master (Medicines)",
+      "description": "Create and manage medicines — name, manufacturer, tax, schedule, prices and stock limits.",
+      "duration": 131,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "supplier-master-add-supplier",
+      "section": "masters",
+      "title": "Supplier Master",
+      "description": "Record the distributors you buy from — GST, drug licence, contact details and credit terms.",
+      "duration": 102,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "patient-registration",
+      "section": "masters",
+      "title": "Patient Registration",
+      "description": "Keep a record of regular customers — contact details, doctor, allergies and loyalty membership.",
+      "duration": 85,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "purchase-entry",
+      "section": "buying-selling",
+      "title": "Purchase Entry",
+      "description": "Receive medicines from a supplier bill — batch, expiry, quantity, free goods, rates and GST — and add them to stock.",
+      "duration": 180,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "sales-billing-create-invoice",
+      "section": "buying-selling",
+      "title": "POS Billing (Sales)",
+      "description": "Bill medicines to a customer — choose the patient, add items with batch and quantity, take payment and print the invoice.",
+      "duration": 133,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "sales-return",
+      "section": "buying-selling",
+      "title": "Sales Return",
+      "description": "Take back medicines against the customer's invoice — the stock goes back to its original batch.",
+      "duration": 54,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "inventory-batch-and-expiry",
+      "section": "stock",
+      "title": "Inventory, Batch & Expiry",
+      "description": "Check stock batch by batch, and catch low-stock, near-expiry and expired medicines before they become a loss.",
+      "duration": 70,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "stock-adjustment",
+      "section": "stock",
+      "title": "Stock Adjustment",
+      "description": "Correct stock for damaged, expired or missing units — every change is recorded with a reason.",
+      "duration": 85,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "stock-control-transfer-opening",
+      "section": "stock",
+      "title": "Stock Control, Transfer & Opening Stock",
+      "description": "Physical stock counts, reconciliation, reorder suggestions, store transfers and first-time stock loading.",
+      "duration": 113,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "reports-center",
+      "section": "reports-admin",
+      "title": "Reports Center",
+      "description": "Sales, purchase, GST, stock valuation and expiry reports for any date range — ready to print or export.",
+      "duration": 121,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "users-and-roles",
+      "section": "reports-admin",
+      "title": "User Management",
+      "description": "Give each staff member their own login and role — and switch the login off when they leave.",
+      "duration": 119,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "settings-company-billing-printer",
+      "section": "reports-admin",
+      "title": "Settings",
+      "description": "Your pharmacy's details, the billing price rule and the invoice printer — set once, used on every bill.",
+      "duration": 83,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "backup-and-system-maintenance",
+      "section": "reports-admin",
+      "title": "Backup & System Maintenance",
+      "description": "Protect your data with backups, keep PharCare up to date, and know where your database and stores are set up.",
+      "duration": 95,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "purchase-orders-and-history",
+      "section": "advanced",
+      "title": "Purchase Orders & Purchase History",
+      "description": "Order stock from a supplier before it arrives, and look up any received bill later.",
+      "duration": 124,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "purchase-analytics-and-audit-logs",
+      "section": "advanced",
+      "title": "Purchase Analytics & Audit Logs",
+      "description": "Understand what you buy and from whom — and see who did what, and when, in the system.",
+      "duration": 78,
+      "uploaded": "2026-09-11"
+    },
+    {
+      "slug": "production-formulations-and-runs",
+      "section": "advanced",
+      "title": "Production (Formulations & Runs)",
+      "description": "For pharmacies that make their own preparations — recipes, batch production, quality check and traceability.",
+      "duration": 65,
+      "uploaded": "2026-09-11"
+    }
+  ]
+}

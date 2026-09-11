@@ -17,6 +17,7 @@ It is a product of LiVEUO, not a separate company.
 ## Products
 
 - [pharCare — Pharmacy Billing & Management Software](https://www.liveuo.com/products/pharcare/): GST-ready pharmacy billing software with expiry tracking, multi-branch stock sync, and Schedule H compliance.
+- [pharCare demo videos](https://www.liveuo.com/products/pharcare/demo/): Step-by-step, captioned walkthroughs of pharCare — sign-in, medicine and supplier masters, purchase entry, POS billing, returns, batch and expiry tracking, stock control, GST reports and administration.
 - [Complete Pharmacy Management Software](https://www.liveuo.com/products/complete-pharmacy-software/): Multi-store pharmacy management covering warehouse stock, distributor billing, and branch-level reporting. Built for pharmacy chains.
 - [GST Billing Software](https://www.liveuo.com/products/billing-software/): GST-compliant billing application for businesses outside the pharmacy sector.
 - [E-Commerce Platform Development](https://www.liveuo.com/products/ecommerce-platform/): Storefronts and checkout systems with inventory and payment integrations, built to convert and to survive traffic spikes.

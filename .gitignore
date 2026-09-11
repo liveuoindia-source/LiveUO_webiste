@@ -13,3 +13,8 @@ server/private/
 # that handler and silently unwired the Node app. Template kept as
 # web.config.iisnode, applied by hand.
 web.config
+
+# Demo videos: large binary HLS output, uploaded to the server directly.
+# Never through git - it would bloat the repo and every Plesk pull with it.
+demos/media/
+demos-src/

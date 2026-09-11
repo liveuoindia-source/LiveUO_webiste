@@ -512,5 +512,7 @@ module.exports = {
   updateSitemap,
   renderPost,
   renderIndex,
-  renderFeed
+  renderFeed,
+  // Shared with build-demos.js so the demo page keeps the live nav/footer.
+  getChrome
 };
