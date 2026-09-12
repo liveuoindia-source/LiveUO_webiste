@@ -59,6 +59,11 @@
       "slug": "pharmacy-purchase-order-automation",
       "date": "2026-09-11",
       "updated": "2026-09-11"
+    },
+    {
+      "slug": "supplier-returns-credit-notes-pharmacy",
+      "date": "2026-09-12",
+      "updated": "2026-09-12"
     }
   ]
 }
