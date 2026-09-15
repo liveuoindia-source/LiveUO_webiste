@@ -74,6 +74,11 @@
       "slug": "pharmacy-data-backup-dpdp-compliance",
       "date": "2026-09-14",
       "updated": "2026-09-14"
+    },
+    {
+      "slug": "pharmacy-refill-reminders-customer-retention",
+      "date": "2026-09-15",
+      "updated": "2026-09-15"
     }
   ]
 }
