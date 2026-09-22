@@ -25,14 +25,18 @@ const fs = require("fs");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const otp = require("../lib/otp");
-const { getDoc, resolveFile, isAllowed, PRIVATE_DIR } = require("../lib/viewer-docs");
+const { getDoc, resolveFile, resolveMedia, kindOf, isAllowed, PRIVATE_DIR } = require("../lib/viewer-docs");
 const { verifyRecaptcha } = require("../lib/recaptcha");
 const { sendViewerOtp } = require("../lib/mailer");
 
 const router = express.Router();
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SESSION_TTL_MS = 30 * 60 * 1000;
+/*  A PDF is read in one sitting. Video is watched for longer - the demo library
+ *  runs past an hour end to end - and every segment is its own gated request,
+ *  so a short session would cut playback off mid-video. Both stay inside the
+ *  8-hour session cookie. */
+const SESSION_TTL_MS = { pdf: 30 * 60 * 1000, video: 4 * 60 * 60 * 1000, library: 4 * 60 * 60 * 1000 };
 const ACCESS_LOG = path.join(PRIVATE_DIR, "access.log");
 
 /*  Sending mail is the expensive, abusable operation, so it is limited hardest.
@@ -69,10 +73,16 @@ function logAccess(event, req, extra) {
   });
 }
 
+/*  One entry per document, so opening the demo videos does not sign the same
+ *  visitor out of a PDF they have open in another tab. */
 function activeSession(req, docId) {
-  const v = req.session && req.session.viewer;
-  if (!v || v.docId !== docId) return null;
-  if (Date.now() > v.expires) return null;
+  const all = req.session && req.session.viewers;
+  const v = all && Object.prototype.hasOwnProperty.call(all, docId) ? all[docId] : null;
+  if (!v) return null;
+  if (Date.now() > v.expires) {
+    delete all[docId];
+    return null;
+  }
   return v;
 }
 
@@ -164,15 +174,16 @@ router.post("/viewer/verify-otp", verifyLimiter, (req, res) => {
     return res.status(400).json({ error: "That code is not valid. Please check and try again." });
   }
 
-  req.session.viewer = {
+  const session = {
     docId,
     email: String(email).trim().toLowerCase(),
     ip: req.ip,
-    expires: Date.now() + SESSION_TTL_MS
+    expires: Date.now() + SESSION_TTL_MS[kindOf(doc)]
   };
+  req.session.viewers = Object.assign({}, req.session.viewers, { [docId]: session });
 
   logAccess("verified", req, { docId, email });
-  res.json({ ok: true, email: req.session.viewer.email });
+  res.json({ ok: true, email: session.email });
 });
 
 /* ------------------------------------------------------------------ status */
@@ -191,7 +202,11 @@ router.get("/viewer/session/:docId", (req, res) => {
 
 router.post("/viewer/logout", (req, res) => {
   noStore(res);
-  if (req.session) delete req.session.viewer;
+  const docId = (req.body || {}).docId;
+  if (req.session && req.session.viewers) {
+    if (docId) delete req.session.viewers[docId];
+    else delete req.session.viewers;
+  }
   res.json({ ok: true });
 });
 
@@ -204,7 +219,7 @@ router.get("/viewer/doc/:docId", (req, res) => {
   if (!v) return res.status(401).json({ error: "Not authorised." });
 
   const doc = getDoc(docId);
-  if (!doc) return res.status(404).json({ error: "Not found." });
+  if (!doc || kindOf(doc) !== "pdf") return res.status(404).json({ error: "Not found." });
 
   const file = resolveFile(doc);
   if (!file) {
@@ -222,6 +237,63 @@ router.get("/viewer/doc/:docId", (req, res) => {
     console.error("viewer: stream failed -", err.message);
     if (!res.headersSent) res.status(500).end();
   }).pipe(res);
+});
+
+/* ------------------------------------------------------------- the media */
+
+const MEDIA_TYPES = {
+  ".m3u8": "application/vnd.apple.mpegurl",
+  ".m4s": "video/mp4",
+  ".mp4": "video/mp4",
+  ".ts": "video/mp2t",
+  ".jpg": "image/jpeg",
+  ".vtt": "text/vtt"
+};
+
+/*  Video files for "video" and "library" entries:
+ *    /api/viewer/media/<docId>/<file>          e.g. index.m3u8, seg_003.m4s
+ *    /api/viewer/media/<docId>/<slug>/<file>   library entries
+ *
+ *  Library posters are the one exception to the session check: the demo page
+ *  shows them as thumbnails before anyone has signed in, and a still frame of
+ *  the app gives nothing away that the page text does not. */
+router.get(/^\/viewer\/media\/([a-z0-9-]{1,64})\/(.+)$/, (req, res) => {
+  const docId = req.params[0];
+  const rel = req.params[1];
+  const doc = getDoc(docId);
+  if (!doc) return res.status(404).end();
+
+  const ext = path.extname(rel).toLowerCase();
+  const type = MEDIA_TYPES[ext];
+  const file = type ? resolveMedia(doc, rel) : null;
+  const publicPoster = kindOf(doc) === "library" && /^[a-z0-9-]+\/poster\.jpg$/.test(rel);
+
+  if (!publicPoster) {
+    const v = activeSession(req, docId);
+    if (!v) {
+      noStore(res);
+      return res.status(401).json({ error: "Not authorised." });
+    }
+    // One line per playback, not per segment: a video is hundreds of requests.
+    const firstByte = !req.headers.range || /^bytes=0-/.test(req.headers.range);
+    if (file && (ext === ".m3u8" || (ext === ".mp4" && firstByte))) {
+      logAccess("video-played", req, { docId, email: v.email, file: rel });
+    }
+  }
+
+  if (!file) return res.status(404).end();
+
+  res.set("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
+  // "private" keeps Cloudflare from caching a gated file and handing it to the
+  // next visitor. Playlists are never cached at all, so a revoked address stops
+  // at the next video rather than whenever a cache expires.
+  res.set(
+    "Cache-Control",
+    publicPoster ? "public, max-age=86400" : ext === ".m3u8" ? "no-store, private" : "private, max-age=3600"
+  );
+  res.sendFile(file, { headers: { "Content-Type": type }, dotfiles: "deny", cacheControl: false }, (err) => {
+    if (err && !res.headersSent) res.status(err.status || 500).end();
+  });
 });
 
 module.exports = router;

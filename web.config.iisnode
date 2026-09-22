@@ -68,16 +68,33 @@
 
     <security>
       <requestFiltering>
+        <!-- Where IIS serves files itself (the live host has no URL Rewrite,
+             so Node only sees /server.js/...), this list is the ONLY thing
+             keeping these folders off the web. Node still reads them from
+             disk. demos = the gated demo videos: without it IIS serves them
+             to anyone and the OTP gate is decoration. -->
         <hiddenSegments>
           <add segment="node_modules" />
           <add segment="iisnode-logs" />
+          <add segment="iisnode" />
           <add segment="server" />
           <add segment="data" />
+          <add segment="uploads" />
+          <add segment="scripts" />
+          <add segment="content" />
+          <add segment="docs" />
+          <add segment="demos" />
+          <add segment="demos-src" />
+          <add segment=".git" />
+          <add segment=".github" />
+          <add segment=".claude" />
         </hiddenSegments>
         <fileExtensions>
           <add fileExtension=".env" allowed="false" />
           <add fileExtension=".zip" allowed="false" />
           <add fileExtension=".db" allowed="false" />
+          <add fileExtension=".bak" allowed="false" />
+          <add fileExtension=".log" allowed="false" />
         </fileExtensions>
       </requestFiltering>
     </security>

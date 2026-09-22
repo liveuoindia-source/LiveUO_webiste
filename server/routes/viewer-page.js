@@ -9,7 +9,8 @@
  */
 
 const express = require("express");
-const { getDoc } = require("../lib/viewer-docs");
+const path = require("path");
+const { getDoc, kindOf } = require("../lib/viewer-docs");
 
 const router = express.Router();
 
@@ -19,6 +20,8 @@ const esc = (s) =>
 // Pinned. An unpinned CDN build of the renderer would be an unreviewed script
 // running over the document.
 const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
+// Same pinned build as the demo page.
+const HLSJS = "https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.6.15";
 
 router.get("/:docId", (req, res) => {
   const docId = req.params.docId;
@@ -27,10 +30,16 @@ router.get("/:docId", (req, res) => {
   res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
   res.set("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
 
-  if (!doc) return res.status(404).sendFile(require("path").join(__dirname, "..", "..", "404.html"));
+  if (!doc) return res.status(404).sendFile(path.join(__dirname, "..", "..", "404.html"));
+
+  const kind = kindOf(doc);
+  // A library is played by its own page (the pharCare demo page), which runs
+  // the same OTP gate inline. This URL just points there.
+  if (kind === "library") return res.redirect(302, doc.page || "/products/pharcare/demo/");
 
   const siteKey = process.env.RECAPTCHA_SITE_KEY || "";
-  const title = doc.title || "Secure document";
+  const title = doc.title || (kind === "video" ? "Secure video" : "Secure document");
+  const media = kind === "video" ? path.basename(doc.file) : "";
 
   res.send(`<!doctype html>
 <html lang="en">
@@ -84,6 +93,17 @@ router.get("/:docId", (req, res) => {
              font-size:15px; color:rgba(120,130,145,.20); font-weight:600;
              letter-spacing:.5px; user-select:none; }
 
+  /* Video reader. The watermark sits over the video exactly as over a page,
+     and full screen is applied to the shell rather than the <video> so the
+     watermark goes full screen with it. */
+  .player-shell { position:relative; max-width:1100px; margin:0 auto; background:#000;
+                  border-radius:10px; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.13); }
+  .player-shell video { display:block; width:100%; aspect-ratio:16/9; background:#000; }
+  .player-shell:fullscreen { max-width:none; border-radius:0; display:flex; align-items:center; }
+  .player-shell .wm span { color:rgba(255,255,255,.16); }
+  .player-bar { max-width:1100px; margin:10px auto 0; display:flex; justify-content:flex-end; }
+  .player-bar button { width:auto; margin:0; padding:8px 14px; font-size:13px; }
+
   /* Selection is disabled everywhere in the reader. This is a deterrent, not a
      security boundary - it stops an accidental copy, not a determined one. */
   #reader, #reader * { user-select:none; -webkit-user-select:none; }
@@ -107,7 +127,7 @@ router.get("/:docId", (req, res) => {
 <!-- Step 1 + 2 -->
 <div class="wrap" id="gate">
   <div id="step-email">
-    <h1>Secure document</h1>
+    <h1>${kind === "video" ? "Secure video" : "Secure document"}</h1>
     <p class="lede">Enter your email address to receive a one-time access code.</p>
     <label for="email">Email address</label>
     <input id="email" type="email" autocomplete="email" placeholder="you@company.com" />
@@ -122,7 +142,7 @@ router.get("/:docId", (req, res) => {
          data-expired-callback="onViewerCaptchaError"></div>
     <button id="send">Send access code</button>
     <div class="msg" id="m1"></div>
-    <p class="hint">Access is limited to addresses approved for this document.
+    <p class="hint">Access is limited to addresses approved for this ${kind === "video" ? "video" : "document"}.
        The code expires in 10 minutes.</p>
   </div>
 
@@ -131,19 +151,27 @@ router.get("/:docId", (req, res) => {
     <p class="lede">We've sent a 6-digit code to <strong id="sent-to"></strong>.</p>
     <label for="code">Access code</label>
     <input id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
-    <button id="verify">Open document</button>
+    <button id="verify">${kind === "video" ? "Play video" : "Open document"}</button>
     <button class="link" id="back">Use a different email</button>
     <div class="msg" id="m2"></div>
   </div>
 </div>
 
 <!-- Step 3 -->
-<div id="reader"><div id="pages"></div></div>
+<div id="reader">${
+    kind === "video"
+      ? `<div class="player-shell" id="shell"><video id="video" controls playsinline preload="metadata"
+           controlslist="nodownload nofullscreen noremoteplayback" disablepictureinpicture></video></div>
+         <div class="player-bar"><button id="fs" type="button">Full screen</button></div>`
+      : `<div id="pages"></div>`
+  }</div>
 
-<script src="${PDFJS}/pdf.min.js"></script>
+${kind === "video" ? `<script src="${HLSJS}/hls.min.js"></script>` : `<script src="${PDFJS}/pdf.min.js"></script>`}
 <script>
 (function () {
   var DOC_ID = ${JSON.stringify(docId)};
+  var KIND = ${JSON.stringify(kind)};
+  var MEDIA = ${JSON.stringify(media)};
   var $ = function (id) { return document.getElementById(id); };
   var viewer = null;
 
@@ -160,7 +188,7 @@ router.get("/:docId", (req, res) => {
    *  Cloudflare rewrite (or URL Rewrite) is in place. */
   var API = location.pathname.indexOf("/server.js/") === 0 ? "/server.js" : "";
 
-  if (window.pdfjsLib) {
+  if (KIND !== "video" && window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "${PDFJS}/pdf.worker.min.js";
   }
 
@@ -276,7 +304,7 @@ router.get("/:docId", (req, res) => {
         $("gate").style.display = "none";
         $("reader").style.display = "block";
         harden();
-        return render();
+        return KIND === "video" ? playVideo() : render();
       });
   }
 
@@ -331,6 +359,52 @@ router.get("/:docId", (req, res) => {
                                'Please request a new code and try again.</p>';
         console.error(e);
       });
+  }
+
+  function playVideo() {
+    var video = $("video");
+    var shell = $("shell");
+    var src = API + "/api/viewer/media/" + encodeURIComponent(DOC_ID) + "/" + encodeURIComponent(MEDIA);
+    // Sized generously; the shell clips it. The video's own size is not known
+    // until metadata arrives, and full screen changes it again anyway.
+    shell.appendChild(watermark(2400, 1400));
+
+    function fail() {
+      shell.innerHTML = '<p style="color:#fff;text-align:center;padding:60px 20px">Could not play this video. ' +
+                        'Please request a new code and try again.</p>';
+    }
+
+    if (/\\.m3u8$/i.test(MEDIA) && window.Hls && Hls.isSupported()) {
+      var hls = new Hls({ capLevelToPlayerSize: true });
+      hls.on(Hls.Events.ERROR, function (e, d) {
+        if (!d || !d.fatal) return;
+        if (d.type === Hls.ErrorTypes.MEDIA_ERROR) return hls.recoverMediaError();
+        hls.destroy();
+        fail();
+      });
+      hls.loadSource(src);
+      hls.attachMedia(video);
+    } else {
+      // .mp4, or HLS on Safari which plays it natively.
+      video.src = src;
+      video.addEventListener("error", fail);
+    }
+    video.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+    var fs = $("fs");
+    var req = shell.requestFullscreen || shell.webkitRequestFullscreen;
+    if (!req) {
+      fs.style.display = "none"; // iPhone: no element full screen; rotate instead
+    } else {
+      fs.addEventListener("click", function () {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else {
+          req.call(shell);
+        }
+      });
+    }
+    return Promise.resolve();
   }
 
   /*  Deterrents. Every one of these is trivially bypassed with DevTools and

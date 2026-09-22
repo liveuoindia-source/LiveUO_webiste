@@ -4,17 +4,26 @@
     "holds real client email addresses. Copy this file to",
     "server/private/viewers.json on the server and edit it by hand.",
     "",
-    "Each key is the URL slug: this entry is served at",
-    "https://www.liveuo.com/viewer/project-requirement/",
+    "Each key is the URL slug: an entry is served at",
+    "https://www.liveuo.com/viewer/<key>/",
     "",
     "  title    shown in the header and in the OTP email",
-    "  file     filename inside server/private/. Never served statically;",
-    "           only ever streamed by an authenticated session.",
+    "  file     inside server/private/. Never served statically; only ever",
+    "           streamed to a verified session. The extension picks the kind:",
+    "             .pdf          document, rendered page by page",
+    "             .mp4          video",
+    "             .m3u8         HLS video; its segments sit in the same folder",
+    "                           (npm run demos:encode makes these)",
+    "  library  instead of file: a folder of HLS videos played by a page",
+    "           elsewhere on the site. pharcare-demo gates the pharCare demo",
+    "           page at /products/pharcare/demo/ - no entry, no one can watch.",
     "  allow    exact email addresses permitted. Case-insensitive.",
     "           There is no wildcard or domain match, deliberately.",
-    "  expires  YYYY-MM-DD. After this date the document behaves exactly",
-    "           as though it does not exist - the page 404s.",
+    "  expires  YYYY-MM-DD. After this date the entry behaves exactly",
+    "           as though it does not exist.",
     "",
+    "Only addresses in allow ever receive a code; anyone else gets the same",
+    "on-screen reply and no email, so the list cannot be guessed at.",
     "Changes take effect immediately; no restart is needed.",
     "Delete this _comment key in the real file."
   ],
@@ -24,5 +33,19 @@
     "file": "project-requirement.pdf",
     "allow": ["client@example.com"],
     "expires": "2026-12-31"
+  },
+
+  "onboarding-video": {
+    "title": "LiVEUO — Onboarding walkthrough",
+    "file": "videos/onboarding/index.m3u8",
+    "allow": ["client@example.com"],
+    "expires": "2026-12-31"
+  },
+
+  "pharcare-demo": {
+    "title": "pharCare demo videos",
+    "library": "demos/media",
+    "allow": ["client@example.com", "prospect@example.com"],
+    "expires": "2027-12-31"
   }
 }

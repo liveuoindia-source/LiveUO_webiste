@@ -65,6 +65,62 @@
   padding: 6px;
 }
 
+/* Access gate: sits over the player until the visitor's email is verified.
+   The poster of the selected video shows through, dimmed, so the page still
+   reads as a video page. */
+.demo-player-wrap.is-gated { min-height: 300px; }
+
+.demo-gate {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #fff;
+  text-align: center;
+  background-color: #0f1216;
+  background-size: cover;
+  background-position: center;
+}
+
+.demo-gate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 18, 22, 0.86);
+}
+
+.demo-gate-card { position: relative; width: 100%; max-width: 440px; }
+.demo-gate .demo-overlay-title { margin: 10px 0 16px; font-size: 20px; }
+.demo-gate .demo-overlay-title span { word-break: break-all; }
+
+.demo-gate-form { display: flex; gap: 8px; }
+
+.demo-gate-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+}
+
+.demo-gate-form input::placeholder { color: #a9b2c3; }
+.demo-gate-form input:focus { outline: 2px solid #7fa6de; outline-offset: 1px; }
+#gate-code { letter-spacing: 6px; text-align: center; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.demo-gate-form .btn { white-space: nowrap; }
+.demo-gate-form .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.demo-gate-hint { margin: 14px 0 0; font-size: 13px; color: #a9b2c3; }
+.demo-gate-hint a { color: #d6dbe4; }
+.demo-gate-msg { min-height: 20px; margin: 10px 0 0; font-size: 14px; color: #d6dbe4; }
+.demo-gate-msg.is-error { color: #ffb4ab; }
+
 .demo-error {
   margin: 12px 0 0;
   padding: 10px 14px;
@@ -231,4 +287,6 @@
   .demo-hero { padding-top: 36px; }
   .demo-tile-link { grid-template-columns: 108px minmax(0, 1fr) 14px; gap: 10px; }
   .demo-overlay-title { font-size: 18px; }
+  .demo-gate .demo-overlay-title { font-size: 17px; }
+  .demo-gate-form { flex-direction: column; }
 }

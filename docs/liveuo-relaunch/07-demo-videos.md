@@ -4,6 +4,41 @@ Public page at `/products/pharcare/demo/`: a player with a playlist beside it,
 autoplay-next, resume, topic filters and search. Built from
 `content/demos/videos.json` by `scripts/build-demos.js`.
 
+## Who can watch: email + one-time code
+
+The videos are **not public**. Only email addresses on the `pharcare-demo`
+allow-list in `server/private/viewers.json` can watch:
+
+```json
+"pharcare-demo": {
+  "title": "pharCare demo videos",
+  "library": "demos/media",
+  "allow": ["client@company.com"],
+  "expires": "2027-12-31"
+}
+```
+
+The page shows the titles, descriptions and posters to everyone, with an
+email form over the player. An approved address gets a 6-digit code (valid
+10 minutes, 5 tries); after entering it the browser can watch for 4 hours.
+An address that is not on the list sees the same "check your inbox" screen
+but no email is sent - so nobody can find out who is on the list. Edits to
+the list apply immediately. Every code request and playback is recorded in
+`server/private/access.log`.
+
+How it holds: the playlists and segments are served only by the Node app at
+`/server.js/api/viewer/media/pharcare-demo/<slug>/...`, and only to a
+verified session. Posters are the one public file. For this to mean anything
+IIS must **not** serve `demos/media/` itself - `demos` is a hidden segment in
+the server's web.config (see `web.config.iisnode`). Check from anywhere:
+
+```bash
+curl -sI https://liveuo.com/demos/media/dashboard/index.m3u8 | head -1          # 404
+curl -sI https://liveuo.com/server.js/api/viewer/media/pharcare-demo/dashboard/index.m3u8 | head -1   # 401
+```
+
+Removing the `pharcare-demo` entry locks the page for everyone.
+
 ## What "not downloadable" means here
 
 Nothing a browser can play can be made impossible to copy — a screen recording
@@ -45,6 +80,10 @@ whose videos 404.
 
 ## One-time server setup: MIME types
 
+Only needed while IIS served the media directly. The videos now go through
+Node, which sets the types itself; the block is harmless to leave in.
+
+
 IIS refuses to serve file types it doesn't know. `.m3u8` and `.m4s` aren't in
 its defaults, so without this every video fails with a 404.3.
 
@@ -68,11 +107,6 @@ site-wide 500. `<remove>` on an absent mapping is harmless.
 this host can't load. If adding it still produces a 500, delete the block and
 the site recovers immediately.
 
-Check from anywhere:
-
-```bash
-curl -sI https://www.liveuo.com/demos/media/<slug>/index.m3u8 | head -1
-```
 
 ## Hosting caveats
 
@@ -80,5 +114,6 @@ curl -sI https://www.liveuo.com/demos/media/<slug>/index.m3u8 | head -1
   3–6 MB per minute of video.
 - **Cloudflare's CDN terms restrict serving video** through the standard CDN
   on its non-media plans. Review them, or add a Cache Rule that bypasses cache
-  for `/demos/media/*`. Cloudflare Stream is the supported route if traffic
+  for `/server.js/api/viewer/media/*` (the gated files are already sent
+  `private`, so Cloudflare should not cache them). Cloudflare Stream is the supported route if traffic
   grows.

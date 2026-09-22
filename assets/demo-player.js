@@ -11,6 +11,11 @@
  *  Download protection on this side is deterrence only: no download control,
  *  no right-click menu on the video, no picture-in-picture. The meaningful part
  *  is upstream - the video arrives as short HLS segments, not one saveable file.
+ *
+ *  Access is gated: the Node app serves the playlists and segments only to a
+ *  session verified by email + one-time code against the allow-list named in
+ *  window.DEMO_GATE. Until then the page shows the gate over the player and
+ *  nothing is requested but posters.
  */
 (function () {
   "use strict";
@@ -73,6 +78,8 @@
   }
 
   var player = new window.Plyr(video, options);
+  var gate = window.DEMO_GATE || { doc: "pharcare-demo", api: "/server.js" };
+  var authed = false;
   var hls = null;
   var current = -1;
   var countdownTimer = null;
@@ -95,6 +102,13 @@
       hls = new window.Hls({ capLevelToPlayerSize: true });
       hls.on(window.Hls.Events.ERROR, function (evt, d) {
         if (!d || !d.fatal) return;
+        // Session ran out (or access was revoked) mid-watch: back to the gate.
+        if (d.response && d.response.code === 401) {
+          hls.destroy();
+          hls = null;
+          showGate("Your viewing session has ended. Enter your email for a new code.");
+          return;
+        }
         if (d.type === window.Hls.ErrorTypes.MEDIA_ERROR) {
           hls.recoverMediaError();
           return;
@@ -107,6 +121,13 @@
       hls.attachMedia(video);
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src; // Safari and iOS play HLS natively
+      // Native playback hides the HTTP status, so ask the server directly.
+      video.onerror = function () {
+        checkSession().then(function (ok) {
+          if (!ok) showGate("Your viewing session has ended. Enter your email for a new code.");
+          else showError("This video could not be loaded. Please check your connection and try again.");
+        });
+      };
     } else {
       showError("Your browser cannot play these videos. Please use a current version of Chrome, Edge, Firefox or Safari.");
     }
@@ -170,7 +191,14 @@
     // card on deep links and tile clicks. Keep only data-poster.
     video.removeAttribute("poster");
     player.poster = v.poster;
-    attach(v.src);
+    setGatePoster(v.poster);
+    // Not yet verified: show the video's details and poster, request nothing.
+    if (!authed) {
+      if (hls) { hls.destroy(); hls = null; }
+      autoplay = false;
+    } else {
+      attach(v.src);
+    }
 
     $("demo-title").textContent = v.title;
     $("demo-desc").textContent = v.description;
@@ -264,6 +292,7 @@
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
       e.preventDefault();
       load(indexBySlug[t.getAttribute("data-slug")], true);
+      if (!authed) focusGate();
       var stage = $("demo-stage");
       if (stage) {
         var r = stage.getBoundingClientRect();
@@ -312,6 +341,144 @@
     });
   });
 
+  /* ------------------------------------------------------------------ gate */
+
+  function checkSession() {
+    return fetch(gate.api + "/api/viewer/session/" + encodeURIComponent(gate.doc), { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.json() : { authenticated: false }; })
+      .then(function (s) { return !!(s && s.authenticated); })
+      .catch(function () { return false; });
+  }
+
+  function gateMsg(text, isError) {
+    var el = $("gate-msg");
+    if (!el) return;
+    el.textContent = text || "";
+    el.classList.toggle("is-error", !!isError);
+  }
+
+  function gateStep(which) {
+    $("gate-step-email").hidden = which !== "email";
+    $("gate-step-code").hidden = which !== "code";
+  }
+
+  function setGatePoster(src) {
+    var g = $("demo-gate");
+    if (g) g.style.backgroundImage = src ? 'url("' + src + '")' : "";
+  }
+
+  function focusGate() {
+    var input = $("gate-step-code").hidden ? $("gate-email") : $("gate-code");
+    if (input) input.focus({ preventScroll: true });
+  }
+
+  function showGate(message) {
+    authed = false;
+    try { player.pause(); } catch (e) { /* not ready */ }
+    $("demo-wrap").classList.add("is-gated");
+    $("demo-gate").hidden = false;
+    gateStep("email");
+    gateMsg(message || "", !!message);
+  }
+
+  function unlock() {
+    authed = true;
+    $("demo-gate").hidden = true;
+    $("demo-wrap").classList.remove("is-gated");
+    gateMsg("");
+  }
+
+  // Answers are read as text first: on this host a misrouted request comes
+  // back as an empty body or an HTML error page, not JSON.
+  function post(path, body) {
+    return fetch(gate.api + path, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      return r.text().then(function (raw) {
+        var data;
+        try { data = raw ? JSON.parse(raw) : {}; } catch (e) { data = {}; }
+        if (!r.ok) throw new Error(data.error || "Something went wrong (HTTP " + r.status + "). Please try again.");
+        return data;
+      });
+    });
+  }
+
+  var sendBtn = $("gate-send");
+
+  $("gate-email-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = $("gate-email").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return gateMsg("Enter a valid email address.", true);
+    if (typeof window.grecaptcha === "undefined") {
+      return gateMsg("Verification failed to load. Please reload the page.", true);
+    }
+    sendBtn.disabled = true;
+    gateMsg("Verifying…");
+    try {
+      window.grecaptcha.execute();
+    } catch (err) {
+      sendBtn.disabled = false;
+      gateMsg("Could not start verification. Please reload the page.", true);
+    }
+  });
+
+  // Invisible reCAPTCHA calls back here with the token; named on the widget,
+  // so it has to be global.
+  window.onDemoGateCaptcha = function (token) {
+    var email = $("gate-email").value.trim();
+    gateMsg("Sending…");
+    post("/api/viewer/request-otp", { docId: gate.doc, email: email, "g-recaptcha-response": token })
+      .then(function () {
+        // Advances for every address, approved or not - the server does not
+        // say which, so neither can this page.
+        $("gate-sent-to").textContent = email;
+        gateStep("code");
+        gateMsg("");
+        $("gate-code").value = "";
+        $("gate-code").focus();
+      })
+      .catch(function (err) { gateMsg(err.message, true); })
+      .then(function () {
+        sendBtn.disabled = false;
+        // Tokens are single-use.
+        if (typeof window.grecaptcha !== "undefined") window.grecaptcha.reset();
+      });
+  };
+
+  window.onDemoGateCaptchaError = function () {
+    // Google can fire this on its own (a token expiring unused, a network
+    // blip while loading). Only report it when the visitor pressed Send.
+    if (!sendBtn.disabled) return;
+    sendBtn.disabled = false;
+    gateMsg("Verification did not complete. Please try again.", true);
+    if (typeof window.grecaptcha !== "undefined") window.grecaptcha.reset();
+  };
+
+  $("gate-code-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var code = $("gate-code").value.trim();
+    if (!/^\d{6}$/.test(code)) return gateMsg("Enter the 6-digit code from your email.", true);
+    var btn = $("gate-verify");
+    btn.disabled = true;
+    gateMsg("Checking…");
+    post("/api/viewer/verify-otp", { docId: gate.doc, email: $("gate-sent-to").textContent, code: code })
+      .then(function () {
+        unlock();
+        load(current, true);
+      })
+      .catch(function (err) { gateMsg(err.message, true); })
+      .then(function () { btn.disabled = false; });
+  });
+
+  $("gate-back").addEventListener("click", function () {
+    gateStep("email");
+    gateMsg("");
+    $("gate-email").focus();
+  });
+
   /* ---------------------------------------------------------------- start */
 
   var watched = watchedList();
@@ -329,4 +496,12 @@
   // No autoplay on arrival: browsers block it with sound, and a visitor who
   // opened the page should choose when to start.
   load(start === undefined ? 0 : start, false);
+
+  // Resume a session verified earlier (another visit, a reload).
+  checkSession().then(function (ok) {
+    if (ok) {
+      unlock();
+      load(current, false);
+    }
+  });
 })();

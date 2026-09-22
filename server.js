@@ -103,7 +103,10 @@ const BLOCKED_PREFIXES = [
   "/iisnode-logs/", "/iisnode/",
   // IIS's ASP.NET must run send.ashx. If a request for it ever reaches Node
   // instead (missing web.config rule), 404 rather than serve its source.
-  "/mailrelay/"
+  "/mailrelay/",
+  // Demo videos are gated: served only by /api/viewer/media/pharcare-demo/
+  // to a verified session, never as plain static files.
+  "/demos/", "/demos-src/"
 ];
 const BLOCKED_EXACT = new Set([
   "/server.js", "/package.json", "/package-lock.json", "/web.config"

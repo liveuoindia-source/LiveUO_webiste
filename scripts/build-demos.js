@@ -2,15 +2,22 @@
 /*  Renders the pharCare demo video page from content/demos/videos.json.
  *
  *  Output: products/pharcare/demo/index.html - a static page, served by IIS
- *  directly. It does not depend on the Node app or on any URL rewriting, both
- *  of which have been unreliable on this host.
+ *  directly.
+ *
+ *  The videos themselves are gated: only addresses on the "pharcare-demo"
+ *  allow-list in server/private/viewers.json can watch. The page shows an
+ *  email + one-time-code form over the player, and every playlist and segment
+ *  is served by the Node app (/server.js/api/viewer/media/...) only to a
+ *  verified session. demos/media/ must be a hidden segment in the server's
+ *  web.config, or IIS would hand the files out directly and the gate would be
+ *  decoration. Posters stay public so the page still looks like something.
  *
  *  As with the blog generator, the nav and footer are lifted from a live page,
  *  so a navigation change reaches this page on the next build with no edits.
  *
- *  Structured data: one VideoObject per video inside an ItemList, so the demos
- *  can appear as video results. build.js runs after this in `npm run build` and
- *  adds the BreadcrumbList from the visible breadcrumb; it leaves these alone.
+ *  No VideoObject structured data: Google cannot fetch a gated video, and
+ *  VideoObjects pointing at URLs that answer 401 are reported as errors.
+ *  build.js still adds the BreadcrumbList from the visible breadcrumb.
  *
  *  With no videos in the manifest nothing is written - an empty demo page is
  *  worse than no page, and every link to it would be a dead end.
@@ -35,7 +42,11 @@ const MANIFEST = path.resolve(
 const PAGE_PATH = "/products/pharcare/demo/";
 const PAGE_URL = ORIGIN + PAGE_PATH;
 const PAGE_FILE = path.join(ROOT, "products", "pharcare", "demo", "index.html");
-const MEDIA = "/demos/media/";
+// The allow-list entry in server/private/viewers.json that gates these videos.
+const GATE_DOC = "pharcare-demo";
+// Always through /server.js: on this host IIS reaches Node only by that
+// prefix, and server.js strips it again, so the same URL works locally.
+const MEDIA = "/server.js/api/viewer/media/" + GATE_DOC + "/";
 
 // Pinned: this code runs over every video on the page.
 const PLYR = "https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.4";
@@ -56,14 +67,6 @@ const safeJson = (o) => JSON.stringify(o).replace(/</g, "\\u003c");
 function clock(sec) {
   const s = Math.max(0, Math.round(sec || 0));
   return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-}
-
-function isoDuration(sec) {
-  const s = Math.max(0, Math.round(sec || 0));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const r = s % 60;
-  return "PT" + (h ? h + "H" : "") + (m ? m + "M" : "") + (r || (!h && !m) ? r + "S" : "");
 }
 
 const describe = (v) => v.description || "A short pharCare walkthrough: " + v.title + ".";
@@ -111,33 +114,17 @@ function tile(v, n) {
   );
 }
 
-function jsonLd(order, page) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "ItemList",
-        "@id": PAGE_URL + "#demos",
-        name: page.title || "pharCare product demos",
-        numberOfItems: order.length,
-        itemListElement: order.map((v, i) => ({
-          "@type": "ListItem",
-          position: i + 1,
-          item: {
-            "@type": "VideoObject",
-            name: v.title,
-            description: describe(v),
-            thumbnailUrl: [ORIGIN + MEDIA + v.slug + "/poster.jpg"],
-            uploadDate: v.uploaded + "T00:00:00+05:30",
-            duration: isoDuration(v.duration),
-            contentUrl: ORIGIN + MEDIA + v.slug + "/index.m3u8",
-            url: PAGE_URL + "?v=" + v.slug,
-            publisher: { "@type": "Organization", name: "LiVEUO", url: ORIGIN + "/" }
-          }
-        }))
-      }
-    ]
-  };
+/*  Same site key as the contact form, read from it so there is one place to
+ *  change it. Invisible v2, like the document viewer. */
+function recaptchaSiteKey() {
+  try {
+    const html = fs.readFileSync(path.join(ROOT, "contact", "index.html"), "utf8");
+    const m = /data-sitekey="([^"]+)"/.exec(html);
+    if (m) return m[1];
+  } catch {
+    /* fall through */
+  }
+  throw new Error("could not find the reCAPTCHA site key in contact/index.html");
 }
 
 function render({ page, groups, order }) {
@@ -196,7 +183,6 @@ function render({ page, groups, order }) {
     `<link rel="preconnect" href="https://fonts.googleapis.com"/>` +
     `<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>` +
     `<link rel="stylesheet" href="${PLYR}/plyr.css"/><link rel="stylesheet" href="/assets/demo.css"/>` +
-    `<script type="application/ld+json">${safeJson(jsonLd(order, page))}</script>` +
     `</head><body>`;
 
   const main =
@@ -206,7 +192,7 @@ function render({ page, groups, order }) {
     `</div></section>` +
     `<section class="demo-section"><div class="container demo-layout">` +
     `<div class="demo-stage" id="demo-stage">` +
-    `<div class="demo-player-wrap">` +
+    `<div class="demo-player-wrap is-gated" id="demo-wrap">` +
     // data-poster, not poster: Plyr reads the native attribute first, so a
     // native poster would pin the first video's card whenever another one is
     // loaded (a deep link, a tile click). data-audio lets a silent-by-design
@@ -219,6 +205,31 @@ function render({ page, groups, order }) {
     `<div class="demo-overlay-title" id="demo-upnext-title"></div>` +
     `<div class="demo-overlay-actions"><button type="button" class="btn btn-light" id="demo-upnext-play">Play now</button>` +
     `<button type="button" class="demo-overlay-link" id="demo-upnext-cancel">Cancel</button></div>` +
+    `</div></div>` +
+    // The gate. Shown until the Node app confirms a verified session for
+    // GATE_DOC; demo-player.js removes it. Same flow and wording as the
+    // document viewer, which answers identically for approved and unknown
+    // addresses so the allow-list cannot be probed.
+    `<div class="demo-gate" id="demo-gate"><div class="demo-gate-card">` +
+    `<div id="gate-step-email">` +
+    `<div class="demo-overlay-kicker">Approved viewers only</div>` +
+    `<div class="demo-overlay-title">Enter your email to watch the demos</div>` +
+    `<form class="demo-gate-form" id="gate-email-form" novalidate>` +
+    `<input type="email" id="gate-email" autocomplete="email" placeholder="you@company.com" aria-label="Email address" required>` +
+    `<button type="submit" class="btn btn-light" id="gate-send">Send code</button></form>` +
+    `<p class="demo-gate-hint">A one-time code goes to approved addresses. No access yet? <a href="/contact/">Ask us for a demo</a>.</p>` +
+    `</div>` +
+    `<div id="gate-step-code" hidden>` +
+    `<div class="demo-overlay-kicker">Check your inbox</div>` +
+    `<div class="demo-overlay-title">Enter the 6-digit code sent to <span id="gate-sent-to"></span></div>` +
+    `<form class="demo-gate-form" id="gate-code-form" novalidate>` +
+    `<input id="gate-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" aria-label="Access code" required>` +
+    `<button type="submit" class="btn btn-light" id="gate-verify">Watch</button></form>` +
+    `<button type="button" class="demo-overlay-link" id="gate-back">Use a different email</button>` +
+    `</div>` +
+    `<p class="demo-gate-msg" id="gate-msg" role="status" aria-live="polite"></p>` +
+    `<div class="g-recaptcha" data-sitekey="${esc(recaptchaSiteKey())}" data-size="invisible" data-badge="bottomleft"` +
+    ` data-callback="onDemoGateCaptcha" data-error-callback="onDemoGateCaptchaError" data-expired-callback="onDemoGateCaptchaError"></div>` +
     `</div></div>` +
     `<div class="demo-overlay" id="demo-endcard" hidden><div>` +
     `<div class="demo-overlay-kicker">That's every demo</div>` +
@@ -247,6 +258,8 @@ function render({ page, groups, order }) {
 
   const tail =
     `<script type="application/json" id="demo-data">${safeJson(data)}</script>` +
+    `<script>window.DEMO_GATE=${safeJson({ doc: GATE_DOC, api: "/server.js" })};</script>` +
+    `<script src="https://www.google.com/recaptcha/api.js" async defer></script>` +
     `<script src="${HLSJS}/hls.min.js"></script>` +
     `<script src="${PLYR}/plyr.min.js"></script>` +
     `<script src="/assets/demo-player.js"></script>` +
