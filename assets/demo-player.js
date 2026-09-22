@@ -14,8 +14,8 @@
  *
  *  Access is gated: the Node app serves the playlists and segments only to a
  *  session verified by email + one-time code against the allow-list named in
- *  window.DEMO_GATE. Until then the page shows the gate over the player and
- *  nothing is requested but posters.
+ *  window.DEMO_GATE. Until then a sign-in modal opens over the (blurred) page,
+ *  the player shows a locked state, and nothing is requested but posters.
  */
 (function () {
   "use strict";
@@ -292,7 +292,7 @@
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
       e.preventDefault();
       load(indexBySlug[t.getAttribute("data-slug")], true);
-      if (!authed) focusGate();
+      if (!authed) openModal();
       var stage = $("demo-stage");
       if (stage) {
         var r = stage.getBoundingClientRect();
@@ -343,6 +343,17 @@
 
   /* ------------------------------------------------------------------ gate */
 
+  var modal = $("gate-modal");
+  var emailForm = $("gate-email-form");
+  var codeForm = $("gate-code-form");
+  var emailInput = $("gate-email");
+  var sendBtn = $("gate-send");
+  var verifyBtn = $("gate-verify");
+  var digits = Array.prototype.slice.call(document.querySelectorAll(".gate-digit"));
+  var pendingEmail = "";
+  var sending = false;
+  var lastFocus = null;
+
   function checkSession() {
     return fetch(gate.api + "/api/viewer/session/" + encodeURIComponent(gate.doc), { credentials: "same-origin" })
       .then(function (r) { return r.ok ? r.json() : { authenticated: false }; })
@@ -350,16 +361,33 @@
       .catch(function () { return false; });
   }
 
-  function gateMsg(text, isError) {
+  function gateMsg(text, kind) {
     var el = $("gate-msg");
-    if (!el) return;
     el.textContent = text || "";
-    el.classList.toggle("is-error", !!isError);
+    el.className = "gate-msg" + (text && kind ? " is-" + kind : "");
   }
 
-  function gateStep(which) {
-    $("gate-step-email").hidden = which !== "email";
-    $("gate-step-code").hidden = which !== "code";
+  function busy(btn, on, label) {
+    btn.disabled = on;
+    btn.classList.toggle("is-busy", on);
+    btn.textContent = on ? label : btn.getAttribute("data-label");
+  }
+
+  function step(which) {
+    var code = which === "code";
+    emailForm.hidden = code;
+    codeForm.hidden = !code;
+    $("gate-title").textContent = code ? "Check your email" : "Watch the pharCare demos";
+    var sub = $("gate-sub");
+    if (code) {
+      sub.textContent = "We sent a 6-digit code to ";
+      var b = document.createElement("strong");
+      b.textContent = pendingEmail;
+      sub.appendChild(b);
+      sub.appendChild(document.createTextNode(". It expires in 10 minutes."));
+    } else {
+      sub.textContent = "Enter your work email and we'll send you a one-time access code.";
+    }
   }
 
   function setGatePoster(src) {
@@ -367,22 +395,77 @@
     if (g) g.style.backgroundImage = src ? 'url("' + src + '")' : "";
   }
 
-  function focusGate() {
-    var input = $("gate-step-code").hidden ? $("gate-email") : $("gate-code");
-    if (input) input.focus({ preventScroll: true });
+  /* ---- modal plumbing: scroll lock, focus trap, Esc, click-outside ---- */
+
+  function focusables() {
+    return Array.prototype.filter.call(
+      modal.querySelectorAll("a[href], button:not([disabled]), input:not([disabled])"),
+      function (el) { return el.offsetParent !== null; }
+    );
   }
+
+  function focusFirstField() {
+    var target = !codeForm.hidden ? digits.filter(function (d) { return !d.value; })[0] || digits[5] : emailInput;
+    if (target) target.focus();
+  }
+
+  function openModal() {
+    if (authed || !modal.hidden) return;
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.documentElement.classList.add("gate-lock");
+    // Next frame, so the opening transition runs from the hidden state.
+    window.requestAnimationFrame(function () {
+      modal.classList.add("is-open");
+      focusFirstField();
+    });
+  }
+
+  function closeModal() {
+    if (modal.hidden) return;
+    modal.classList.remove("is-open");
+    modal.hidden = true;
+    document.documentElement.classList.remove("gate-lock");
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  Array.prototype.forEach.call(modal.querySelectorAll("[data-gate-close]"), function (el) {
+    el.addEventListener("click", closeModal);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (modal.hidden) return;
+    if (e.key === "Escape") { e.preventDefault(); closeModal(); return; }
+    if (e.key !== "Tab") return;
+    var f = focusables();
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  $("gate-open").addEventListener("click", openModal);
+
+  // The big play button with no source loaded: ask for access instead.
+  video.addEventListener("play", function () {
+    if (authed) return;
+    try { video.pause(); } catch (e) { /* ignore */ }
+    openModal();
+  });
 
   function showGate(message) {
     authed = false;
     try { player.pause(); } catch (e) { /* not ready */ }
     $("demo-wrap").classList.add("is-gated");
     $("demo-gate").hidden = false;
-    gateStep("email");
-    gateMsg(message || "", !!message);
+    step("email");
+    gateMsg(message || "", message ? "error" : "");
+    openModal();
   }
 
   function unlock() {
     authed = true;
+    closeModal();
     $("demo-gate").hidden = true;
     $("demo-wrap").classList.remove("is-gated");
     gateMsg("");
@@ -406,43 +489,60 @@
     });
   }
 
-  var sendBtn = $("gate-send");
+  /* ---- step 1: email -> code ---- */
 
-  $("gate-email-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var email = $("gate-email").value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return gateMsg("Enter a valid email address.", true);
+  function requestCode(btn) {
     if (typeof window.grecaptcha === "undefined") {
-      return gateMsg("Verification failed to load. Please reload the page.", true);
+      return gateMsg("Verification failed to load. Please reload the page.", "error");
     }
-    sendBtn.disabled = true;
-    gateMsg("Verifying…");
+    sending = btn;
+    busy(btn, true, "Sending…");
+    gateMsg("");
     try {
       window.grecaptcha.execute();
     } catch (err) {
-      sendBtn.disabled = false;
-      gateMsg("Could not start verification. Please reload the page.", true);
+      busy(btn, false);
+      sending = false;
+      gateMsg("Could not start verification. Please reload the page.", "error");
     }
+  }
+
+  emailForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = emailInput.value.trim();
+    var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    emailInput.parentNode.classList.toggle("is-invalid", !valid);
+    if (!valid) {
+      emailInput.focus();
+      return gateMsg("Enter a valid email address.", "error");
+    }
+    pendingEmail = email;
+    requestCode(sendBtn);
+  });
+
+  emailInput.addEventListener("input", function () {
+    emailInput.parentNode.classList.remove("is-invalid");
+    if ($("gate-msg").classList.contains("is-error")) gateMsg("");
   });
 
   // Invisible reCAPTCHA calls back here with the token; named on the widget,
   // so it has to be global.
   window.onDemoGateCaptcha = function (token) {
-    var email = $("gate-email").value.trim();
-    gateMsg("Sending…");
-    post("/api/viewer/request-otp", { docId: gate.doc, email: email, "g-recaptcha-response": token })
+    var btn = sending || sendBtn;
+    var resend = btn !== sendBtn;
+    post("/api/viewer/request-otp", { docId: gate.doc, email: pendingEmail, "g-recaptcha-response": token })
       .then(function () {
         // Advances for every address, approved or not - the server does not
         // say which, so neither can this page.
-        $("gate-sent-to").textContent = email;
-        gateStep("code");
-        gateMsg("");
-        $("gate-code").value = "";
-        $("gate-code").focus();
+        digits.forEach(function (d) { d.value = ""; d.classList.remove("is-filled"); });
+        step("code");
+        gateMsg(resend ? "A new code is on its way." : "", resend ? "ok" : "");
+        digits[0].focus();
       })
-      .catch(function (err) { gateMsg(err.message, true); })
+      .catch(function (err) { gateMsg(err.message, "error"); })
       .then(function () {
-        sendBtn.disabled = false;
+        busy(btn, false);
+        sending = false;
         // Tokens are single-use.
         if (typeof window.grecaptcha !== "undefined") window.grecaptcha.reset();
       });
@@ -450,33 +550,100 @@
 
   window.onDemoGateCaptchaError = function () {
     // Google can fire this on its own (a token expiring unused, a network
-    // blip while loading). Only report it when the visitor pressed Send.
-    if (!sendBtn.disabled) return;
-    sendBtn.disabled = false;
-    gateMsg("Verification did not complete. Please try again.", true);
+    // blip while loading). Only report it when the visitor asked for a code.
+    if (!sending) return;
+    busy(sending, false);
+    sending = false;
+    gateMsg("Verification did not complete. Please try again.", "error");
     if (typeof window.grecaptcha !== "undefined") window.grecaptcha.reset();
   };
 
-  $("gate-code-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var code = $("gate-code").value.trim();
-    if (!/^\d{6}$/.test(code)) return gateMsg("Enter the 6-digit code from your email.", true);
-    var btn = $("gate-verify");
-    btn.disabled = true;
-    gateMsg("Checking…");
-    post("/api/viewer/verify-otp", { docId: gate.doc, email: $("gate-sent-to").textContent, code: code })
+  $("gate-resend").addEventListener("click", function () {
+    if (!sending) requestCode($("gate-resend"));
+  });
+  $("gate-resend").setAttribute("data-label", $("gate-resend").textContent);
+
+  $("gate-back").addEventListener("click", function () {
+    step("email");
+    gateMsg("");
+    emailInput.focus();
+    emailInput.select();
+  });
+
+  /* ---- step 2: six digit boxes ---- */
+
+  function code() {
+    return digits.map(function (d) { return d.value; }).join("");
+  }
+
+  function fillFrom(index, text) {
+    var chars = String(text).replace(/\D/g, "").split("");
+    for (var i = index; i < digits.length && chars.length; i++) {
+      digits[i].value = chars.shift();
+      digits[i].classList.add("is-filled");
+    }
+    var next = digits.filter(function (d) { return !d.value; })[0];
+    (next || digits[digits.length - 1]).focus();
+    if (code().length === 6) codeForm.requestSubmit ? codeForm.requestSubmit() : verify();
+  }
+
+  digits.forEach(function (d, i) {
+    d.addEventListener("input", function () {
+      var v = d.value.replace(/\D/g, "");
+      if (v.length > 1) { d.value = ""; return fillFrom(i, v); } // autofill / fast typing
+      d.value = v;
+      d.classList.toggle("is-filled", !!v);
+      codeForm.classList.remove("is-invalid");
+      if (v && i < digits.length - 1) digits[i + 1].focus();
+      if (code().length === 6) codeForm.requestSubmit ? codeForm.requestSubmit() : verify();
+    });
+    d.addEventListener("keydown", function (e) {
+      if (e.key === "Backspace" && !d.value && i > 0) {
+        digits[i - 1].value = "";
+        digits[i - 1].classList.remove("is-filled");
+        digits[i - 1].focus();
+        e.preventDefault();
+      } else if (e.key === "ArrowLeft" && i > 0) {
+        digits[i - 1].focus();
+      } else if (e.key === "ArrowRight" && i < digits.length - 1) {
+        digits[i + 1].focus();
+      }
+    });
+    d.addEventListener("paste", function (e) {
+      var text = (e.clipboardData || window.clipboardData).getData("text");
+      if (!text) return;
+      e.preventDefault();
+      fillFrom(i, text);
+    });
+    d.addEventListener("focus", function () { d.select(); });
+  });
+
+  function verify() {
+    if (verifyBtn.disabled) return;
+    var c = code();
+    if (!/^\d{6}$/.test(c)) {
+      codeForm.classList.add("is-invalid");
+      return gateMsg("Enter all 6 digits from your email.", "error");
+    }
+    busy(verifyBtn, true, "Verifying…");
+    gateMsg("");
+    post("/api/viewer/verify-otp", { docId: gate.doc, email: pendingEmail, code: c })
       .then(function () {
         unlock();
         load(current, true);
       })
-      .catch(function (err) { gateMsg(err.message, true); })
-      .then(function () { btn.disabled = false; });
-  });
+      .catch(function (err) {
+        codeForm.classList.add("is-invalid");
+        gateMsg(err.message, "error");
+        digits.forEach(function (d) { d.value = ""; d.classList.remove("is-filled"); });
+        digits[0].focus();
+      })
+      .then(function () { busy(verifyBtn, false); });
+  }
 
-  $("gate-back").addEventListener("click", function () {
-    gateStep("email");
-    gateMsg("");
-    $("gate-email").focus();
+  codeForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    verify();
   });
 
   /* ---------------------------------------------------------------- start */
@@ -497,11 +664,14 @@
   // opened the page should choose when to start.
   load(start === undefined ? 0 : start, false);
 
-  // Resume a session verified earlier (another visit, a reload).
+  // Resume a session verified earlier (another visit, a reload); otherwise
+  // ask for access straight away.
   checkSession().then(function (ok) {
     if (ok) {
       unlock();
       load(current, false);
+    } else {
+      openModal();
     }
   });
 })();

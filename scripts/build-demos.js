@@ -127,6 +127,64 @@ function recaptchaSiteKey() {
   throw new Error("could not find the reCAPTCHA site key in contact/index.html");
 }
 
+const ICON_LOCK =
+  '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+  '<rect x="4" y="10.5" width="16" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>';
+const ICON_MAIL =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+  '<rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="m4 7 8 6 8-6"/></svg>';
+const ICON_CLOSE =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+/*  The sign-in modal: email, then a 6-digit code. Same flow as the document
+ *  viewer, which answers identically for approved and unknown addresses so
+ *  the allow-list cannot be probed. demo-player.js drives it; it opens on
+ *  arrival for anyone without a verified session, and again on any attempt to
+ *  play. The page behind it is blurred, not hidden - titles stay readable
+ *  once it is closed. */
+function gateModal() {
+  const digits = Array.from({ length: 6 }, (_, i) =>
+    `<input class="gate-digit" id="gate-d${i}" inputmode="numeric" maxlength="1" pattern="[0-9]*"` +
+    ` autocomplete="${i === 0 ? "one-time-code" : "off"}" aria-label="Digit ${i + 1}">`
+  ).join("");
+
+  return (
+    `<div class="gate-modal" id="gate-modal" hidden>` +
+    `<div class="gate-backdrop" data-gate-close></div>` +
+    `<div class="gate-dialog" role="dialog" aria-modal="true" aria-labelledby="gate-title" aria-describedby="gate-sub">` +
+    `<button type="button" class="gate-close" data-gate-close aria-label="Close">${ICON_CLOSE}</button>` +
+    `<span class="gate-icon" aria-hidden="true">${ICON_LOCK}</span>` +
+    `<h2 class="gate-title" id="gate-title">Watch the pharCare demos</h2>` +
+    `<p class="gate-sub" id="gate-sub">Enter your work email and we'll send you a one-time access code.</p>` +
+
+    `<form class="gate-form" id="gate-email-form" novalidate>` +
+    `<label class="gate-label" for="gate-email">Work email</label>` +
+    `<div class="gate-field"><span class="gate-field-icon" aria-hidden="true">${ICON_MAIL}</span>` +
+    `<input type="email" id="gate-email" name="email" autocomplete="email" placeholder="name@company.com" spellcheck="false" required></div>` +
+    `<button type="submit" class="gate-btn" id="gate-send" data-label="Send access code">Send access code</button>` +
+    `</form>` +
+
+    `<form class="gate-form" id="gate-code-form" novalidate hidden>` +
+    `<div class="gate-label-row"><label class="gate-label" for="gate-d0">6-digit code</label>` +
+    `<button type="button" class="gate-link" id="gate-back">Change email</button></div>` +
+    `<div class="gate-otp" id="gate-otp">${digits}</div>` +
+    `<button type="submit" class="gate-btn" id="gate-verify" data-label="Verify and watch">Verify and watch</button>` +
+    `<p class="gate-resend">Didn't get it? Check your spam folder, or <button type="button" class="gate-link" id="gate-resend">send a new code</button>.</p>` +
+    `</form>` +
+
+    `<p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>` +
+    `<div class="gate-foot">` +
+    `<p>Access is limited to approved email addresses. No access yet? <a href="/contact/">Request a demo</a></p>` +
+    // The badge is hidden in demo.css; Google requires this line instead.
+    `<p class="gate-legal">Protected by reCAPTCHA. Google <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">Privacy</a>` +
+    ` and <a href="https://policies.google.com/terms" rel="noopener" target="_blank">Terms</a> apply.</p>` +
+    `</div>` +
+    `<div class="g-recaptcha" data-sitekey="${esc(recaptchaSiteKey())}" data-size="invisible"` +
+    ` data-callback="onDemoGateCaptcha" data-error-callback="onDemoGateCaptchaError" data-expired-callback="onDemoGateCaptchaError"></div>` +
+    `</div></div>`
+  );
+}
+
 function render({ page, groups, order }) {
   const chrome = blog.getChrome();
   const first = order[0];
@@ -206,30 +264,12 @@ function render({ page, groups, order }) {
     `<div class="demo-overlay-actions"><button type="button" class="btn btn-light" id="demo-upnext-play">Play now</button>` +
     `<button type="button" class="demo-overlay-link" id="demo-upnext-cancel">Cancel</button></div>` +
     `</div></div>` +
-    // The gate. Shown until the Node app confirms a verified session for
-    // GATE_DOC; demo-player.js removes it. Same flow and wording as the
-    // document viewer, which answers identically for approved and unknown
-    // addresses so the allow-list cannot be probed.
+    // Locked state of the player. The sign-in itself is the modal below; this
+    // is what remains over the player when the modal is closed.
     `<div class="demo-gate" id="demo-gate"><div class="demo-gate-card">` +
-    `<div id="gate-step-email">` +
-    `<div class="demo-overlay-kicker">Approved viewers only</div>` +
-    `<div class="demo-overlay-title">Enter your email to watch the demos</div>` +
-    `<form class="demo-gate-form" id="gate-email-form" novalidate>` +
-    `<input type="email" id="gate-email" autocomplete="email" placeholder="you@company.com" aria-label="Email address" required>` +
-    `<button type="submit" class="btn btn-light" id="gate-send">Send code</button></form>` +
-    `<p class="demo-gate-hint">A one-time code goes to approved addresses. No access yet? <a href="/contact/">Ask us for a demo</a>.</p>` +
-    `</div>` +
-    `<div id="gate-step-code" hidden>` +
-    `<div class="demo-overlay-kicker">Check your inbox</div>` +
-    `<div class="demo-overlay-title">Enter the 6-digit code sent to <span id="gate-sent-to"></span></div>` +
-    `<form class="demo-gate-form" id="gate-code-form" novalidate>` +
-    `<input id="gate-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" aria-label="Access code" required>` +
-    `<button type="submit" class="btn btn-light" id="gate-verify">Watch</button></form>` +
-    `<button type="button" class="demo-overlay-link" id="gate-back">Use a different email</button>` +
-    `</div>` +
-    `<p class="demo-gate-msg" id="gate-msg" role="status" aria-live="polite"></p>` +
-    `<div class="g-recaptcha" data-sitekey="${esc(recaptchaSiteKey())}" data-size="invisible" data-badge="bottomleft"` +
-    ` data-callback="onDemoGateCaptcha" data-error-callback="onDemoGateCaptchaError" data-expired-callback="onDemoGateCaptchaError"></div>` +
+    `<span class="demo-gate-lock" aria-hidden="true">${ICON_LOCK}</span>` +
+    `<div class="demo-overlay-title">These demos are for approved viewers</div>` +
+    `<button type="button" class="btn btn-light" id="gate-open">Get access</button>` +
     `</div></div>` +
     `<div class="demo-overlay" id="demo-endcard" hidden><div>` +
     `<div class="demo-overlay-kicker">That's every demo</div>` +
@@ -257,6 +297,7 @@ function render({ page, groups, order }) {
     `<div>OFFICE<strong>${OFFICE}</strong></div></div></div></div></section>`;
 
   const tail =
+    gateModal() +
     `<script type="application/json" id="demo-data">${safeJson(data)}</script>` +
     `<script>window.DEMO_GATE=${safeJson({ doc: GATE_DOC, api: "/server.js" })};</script>` +
     `<script src="https://www.google.com/recaptcha/api.js" async defer></script>` +
