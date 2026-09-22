@@ -49,6 +49,14 @@
           <match url="^server.js\/debug[\/]?" />
         </rule>
 
+        <!-- The ASP.NET mail relay. The firewall blocks outbound SMTP from
+             node.exe but not from IIS's own worker, so this path must be run
+             by ASP.NET and never rewritten to Node. -->
+        <rule name="mailrelay-aspnet" stopProcessing="true">
+          <match url="^mailrelay/send\.ashx$" />
+          <action type="None" />
+        </rule>
+
         <!-- Everything else becomes a server.js request. No file/directory
              precondition: static files are Express's job here, deliberately. -->
         <rule name="all-to-node">

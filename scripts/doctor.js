@@ -90,7 +90,39 @@ try {
  */
 console.log("\n=== OUTBOUND EMAIL ===========================================");
 
-if (process.env.RESEND_API_KEY) {
+if (process.env.MAIL_RELAY_URL) {
+  line("transport", "ASP.NET relay " + process.env.MAIL_RELAY_URL);
+  if (process.env.MAIL_RELAY_HOST) line("Host header", process.env.MAIL_RELAY_HOST);
+  line("MAIL_RELAY_KEY", process.env.MAIL_RELAY_KEY ? "set" : "NOT SET  <-- required");
+
+  const { relayRequest } = require(path.join(appRoot, "server", "lib", "mailer.js"));
+
+  /*  Two probes, neither of which sends mail:
+   *   GET            -> is ASP.NET executing send.ashx at all?
+   *   keyed empty POST -> does the key match? The relay answers 400
+   *                     "to and subject are required" only once the key passed. */
+  relayRequest("GET")
+    .then((r) => {
+      if (r.status === 200 && /ASP\.NET is running/.test(r.body)) {
+        line("relay reachable", "OK - ASP.NET is executing send.ashx");
+      } else if (/WebHandler|class MailRelay/.test(r.body)) {
+        line("relay reachable", "NO - the .ashx source came back as text");
+        line("what to do", "enable ASP.NET 4.x for the site in Plesk, and add the mailrelay rule to web.config");
+        return;
+      } else {
+        line("relay reachable", "NO - HTTP " + r.status + ": " + r.body.slice(0, 120).replace(/\s+/g, " "));
+        line("what to do", "add the mailrelay rewrite rule to web.config (see web.config.iisnode)");
+        return;
+      }
+      return relayRequest("POST", "").then((p) => {
+        if (p.status === 400) line("relay key", "OK - accepted by the relay");
+        else if (p.status === 403) line("relay key", "MISMATCH - relay read a different MAIL_RELAY_KEY");
+        else line("relay key", "HTTP " + p.status + ": " + p.body.slice(0, 160));
+      });
+    })
+    .catch((err) => line("relay reachable", "FAILED - " + err.message))
+    .finally(() => console.log("\nDone.\n"));
+} else if (process.env.RESEND_API_KEY) {
   line("transport", "Resend HTTP API (port 443)");
   line("MAIL_FROM", process.env.MAIL_FROM || process.env.SMTP_FROM || "NOT SET  <-- required");
 
@@ -100,6 +132,17 @@ if (process.env.RESEND_API_KEY) {
     headers: { Authorization: "Bearer " + process.env.RESEND_API_KEY }
   })
     .then(async (r) => {
+      // A "Sending access" key is valid but may not list domains - Resend
+      // answers 401 with name "restricted_api_key". That is the recommended
+      // key type for this site, so report it as fine rather than rejected.
+      if (r.status === 401) {
+        const body = await r.clone().json().catch(() => null);
+        if (body && body.name === "restricted_api_key") {
+          line("api key", "OK (sending-only key)");
+          line("MAIL_FROM domain", "not checkable with this key - confirm it shows Verified in the Resend dashboard");
+          return;
+        }
+      }
       // Resend answers 400 for a malformed key and 401/403 for a valid-looking
       // one it does not recognise. All three mean the same thing here.
       if (r.status === 400 || r.status === 401 || r.status === 403) {

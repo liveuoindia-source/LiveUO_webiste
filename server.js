@@ -100,7 +100,10 @@ const BLOCKED_PREFIXES = [
   "/node_modules/", "/docs/", "/.git/", "/.github/", "/.claude/",
   // iisnode writes stdout/stderr here. Under the all-requests-to-node rewrite
   // these would otherwise be readable over HTTP, and they contain stack traces.
-  "/iisnode-logs/", "/iisnode/"
+  "/iisnode-logs/", "/iisnode/",
+  // IIS's ASP.NET must run send.ashx. If a request for it ever reaches Node
+  // instead (missing web.config rule), 404 rather than serve its source.
+  "/mailrelay/"
 ];
 const BLOCKED_EXACT = new Set([
   "/server.js", "/package.json", "/package-lock.json", "/web.config"

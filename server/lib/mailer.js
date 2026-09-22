@@ -9,10 +9,18 @@
  *  goes over the Resend HTTP API on port 443 instead. SMTP is kept for local
  *  development, where it works fine and needs no third-party account.
  *
+ *  The block is per program, not per server: the ASP.NET site
+ *  license.liveuo.com sends through Gmail from the same host. So there is a
+ *  third route - hand the message to mailrelay/send.ashx, which IIS runs in
+ *  its own worker process, and let that do the SMTP leg.
+ *
+ *  MAIL_RELAY_URL set  -> ASP.NET relay (mailrelay/send.ashx)
  *  RESEND_API_KEY set  -> HTTPS API
  *  otherwise           -> SMTP, as before
  */
 
+const http = require("http");
+const https = require("https");
 const nodemailer = require("nodemailer");
 
 let transporter = null;
@@ -79,9 +87,58 @@ async function sendViaResend({ to, replyTo, subject, text, html }) {
   }
 }
 
+/*  Plain http/https rather than fetch so MAIL_RELAY_HOST can set the Host
+ *  header: that allows MAIL_RELAY_URL=http://127.0.0.1/... to reach this
+ *  site's IIS binding directly instead of going out through Cloudflare. */
+function relayRequest(method, body) {
+  const url = new URL(process.env.MAIL_RELAY_URL);
+  const lib = url.protocol === "https:" ? https : http;
+  const headers = { "X-Relay-Key": process.env.MAIL_RELAY_KEY || "" };
+  if (process.env.MAIL_RELAY_HOST) headers.Host = process.env.MAIL_RELAY_HOST;
+  if (body) {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+    headers["Content-Length"] = Buffer.byteLength(body);
+  }
+
+  return new Promise((resolve, reject) => {
+    const req = lib.request(url, { method, headers, timeout: 30000 }, (res) => {
+      let data = "";
+      res.setEncoding("utf8");
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => resolve({ status: res.statusCode, body: data }));
+    });
+    req.on("timeout", () => req.destroy(new Error("mail relay timed out")));
+    req.on("error", reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+async function sendViaRelay({ to, replyTo, subject, text, html }) {
+  // Base64 each field: ASP.NET request validation rejects a POST whose raw
+  // form values contain HTML.
+  const b64 = (s) => Buffer.from(String(s || ""), "utf8").toString("base64");
+  const body = new URLSearchParams({
+    to: b64(to),
+    replyTo: b64(replyTo),
+    subject: b64(subject),
+    text: b64(text),
+    html: b64(html)
+  }).toString();
+
+  const res = await relayRequest("POST", body);
+  if (res.status !== 200 || res.body.trim() !== "sent") {
+    throw new Error("Mail relay returned " + res.status + ": " + res.body.slice(0, 300));
+  }
+}
+
 /*  Single exit point for outbound mail, so the two callers below do not each
  *  have to know which transport is in play. */
 async function deliver({ to, replyTo, subject, text, html }) {
+  if (process.env.MAIL_RELAY_URL) {
+    return sendViaRelay({ to, replyTo, subject, text, html });
+  }
+
   if (process.env.RESEND_API_KEY) {
     if (!fromAddress()) throw new Error("MAIL_FROM is not set — required when sending via Resend");
     return sendViaResend({ to, replyTo, subject, text, html });
@@ -160,4 +217,4 @@ async function sendViewerOtp({ email, code, title, ttlMinutes }) {
   });
 }
 
-module.exports = { sendContactNotification, sendViewerOtp };
+module.exports = { sendContactNotification, sendViewerOtp, relayRequest };
