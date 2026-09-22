@@ -27,6 +27,7 @@
 
 "use strict";
 
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const blog = require("./lib/blog");
@@ -59,6 +60,15 @@ const OFFICE =
   "3500, 3rd Main Rd, 1st Phase Girinagar, Phase 4, Banashankari 3rd Stage, Banashankari, Bengaluru, Karnataka 560085, India";
 
 const rel = (p) => path.relative(ROOT, p);
+
+/*  /assets/demo.css?v=<hash of its contents>. Cloudflare keeps static files
+ *  for hours, so without this a deploy ships new HTML against the old script
+ *  and stylesheet - which is exactly how the sign-in modal once failed to
+ *  appear. A changed file gets a new URL; an unchanged one keeps its cache. */
+function versioned(asset) {
+  const hash = crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, asset.replace(/^\//, "")))).digest("hex");
+  return asset + "?v=" + hash.slice(0, 10);
+}
 const esc = (s) =>
   String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -240,7 +250,7 @@ function render({ page, groups, order }) {
     `<link rel="stylesheet" href="/_next/static/chunks/3plzysnn66upc.css" data-precedence="next"/>` +
     `<link rel="preconnect" href="https://fonts.googleapis.com"/>` +
     `<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>` +
-    `<link rel="stylesheet" href="${PLYR}/plyr.css"/><link rel="stylesheet" href="/assets/demo.css"/>` +
+    `<link rel="stylesheet" href="${PLYR}/plyr.css"/><link rel="stylesheet" href="${versioned("/assets/demo.css")}"/>` +
     `</head><body>`;
 
   const main =
@@ -303,7 +313,7 @@ function render({ page, groups, order }) {
     `<script src="https://www.google.com/recaptcha/api.js" async defer></script>` +
     `<script src="${HLSJS}/hls.min.js"></script>` +
     `<script src="${PLYR}/plyr.min.js"></script>` +
-    `<script src="/assets/demo-player.js"></script>` +
+    `<script src="${versioned("/assets/demo-player.js")}"></script>` +
     chrome.scripts +
     `</body></html>`;
 
