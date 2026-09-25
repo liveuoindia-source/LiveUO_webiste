@@ -124,6 +124,11 @@
       "slug": "pharmacy-credit-sales-outstanding-recovery",
       "date": "2026-09-24",
       "updated": "2026-09-24"
+    },
+    {
+      "slug": "drug-recall-traceability-pharmacy",
+      "date": "2026-09-25",
+      "updated": "2026-09-25"
     }
   ]
 }
