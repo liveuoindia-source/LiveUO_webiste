@@ -134,6 +134,11 @@
       "slug": "mrp-price-revision-pharmacy-stock",
       "date": "2026-09-26",
       "updated": "2026-09-26"
+    },
+    {
+      "slug": "pharmacy-home-delivery-operations",
+      "date": "2026-09-27",
+      "updated": "2026-09-27"
     }
   ]
 }
