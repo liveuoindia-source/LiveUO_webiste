@@ -139,6 +139,11 @@
       "slug": "pharmacy-home-delivery-operations",
       "date": "2026-09-27",
       "updated": "2026-09-27"
+    },
+    {
+      "slug": "customer-returns-refunds-pharmacy",
+      "date": "2026-09-28",
+      "updated": "2026-09-28"
     }
   ]
 }
