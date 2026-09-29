@@ -144,6 +144,11 @@
       "slug": "customer-returns-refunds-pharmacy",
       "date": "2026-09-28",
       "updated": "2026-09-28"
+    },
+    {
+      "slug": "pharmacy-owner-kpi-dashboard",
+      "date": "2026-09-29",
+      "updated": "2026-09-29"
     }
   ]
 }
