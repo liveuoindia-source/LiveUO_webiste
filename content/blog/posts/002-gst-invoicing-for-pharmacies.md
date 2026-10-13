@@ -110,7 +110,7 @@ If any of these require re-keying, month-end will consume a day and introduce er
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) treats GST as core billing data rather than an afterthought. Rates and HSN codes live on the item master with bulk update by HSN; MRP and purchase rate are held per batch; a single bill mixes rates and prints the rate-wise breakup automatically; and returns, credit notes and expiry write-offs each generate the correct document linked to the originating transaction. Sales and purchase registers export in GSTR-ready form, split by rate and by B2B/B2C.
+[pharCare](/services/pharcare/) treats GST as core billing data rather than an afterthought. Rates and HSN codes live on the item master with bulk update by HSN; MRP and purchase rate are held per batch; a single bill mixes rates and prints the rate-wise breakup automatically; and returns, credit notes and expiry write-offs each generate the correct document linked to the originating transaction. Sales and purchase registers export in GSTR-ready form, split by rate and by B2B/B2C.
 
 The point is not that GST becomes invisible — it is that the counter staff never have to think about it, and month-end starts from a reconciled file.
 

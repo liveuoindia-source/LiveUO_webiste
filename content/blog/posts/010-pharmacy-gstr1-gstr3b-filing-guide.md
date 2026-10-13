@@ -113,7 +113,7 @@ If any of the four requires a spreadsheet built by hand, that is a recurring mon
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) produces sales and purchase registers split by rate and by B2B/B2C, with place of supply recorded, credit and debit notes carrying their originating invoice reference, an HSN-wise summary at the required digit length, and a write-off report with tax values for ITC reversal. GSTIN capture is a single field at the counter, and supplier invoice references are imported rather than re-keyed wherever the distributor provides a file. The broader mechanics of getting the invoice itself right are covered in the [GST invoicing guide](/resources/blog/gst-invoicing-for-pharmacies/).
+[pharCare](/services/pharcare/) produces sales and purchase registers split by rate and by B2B/B2C, with place of supply recorded, credit and debit notes carrying their originating invoice reference, an HSN-wise summary at the required digit length, and a write-off report with tax values for ITC reversal. GSTIN capture is a single field at the counter, and supplier invoice references are imported rather than re-keyed wherever the distributor provides a file. The broader mechanics of getting the invoice itself right are covered in the [GST invoicing guide](/resources/blog/gst-invoicing-for-pharmacies/).
 
 To see the exports against your own data, [book a demo](/contact/).
 

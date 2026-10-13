@@ -129,6 +129,6 @@ The last question produces the most useful answer in the whole evaluation. Peopl
 
 ## How pharCare evaluates
 
-[pharCare](/products/pharcare/) demos are run against a sample of your own data where you can provide it, including the awkward scenarios above — mixed-rate bills, loose strips, Schedule H1 capture, near-expiry returns, and the disconnection test. Pricing is scoped to your branch and counter count rather than quoted from a list, and migration scope is discussed as the work it actually is.
+[pharCare](/services/pharcare/) demos are run against a sample of your own data where you can provide it, including the awkward scenarios above — mixed-rate bills, loose strips, Schedule H1 capture, near-expiry returns, and the disconnection test. Pricing is scoped to your branch and counter count rather than quoted from a list, and migration scope is discussed as the work it actually is.
 
 If you are running an evaluation, [book a demo](/contact/) and bring your one-page operation summary — it makes the hour far more useful for both sides.

@@ -110,6 +110,6 @@ That decomposition tells you what to do. A margin percentage, on its own, tells 
 
 ## How pharCare reports it
 
-[pharCare](/products/pharcare/) computes margin against the purchase rate of the batch actually dispensed, and reports it by item, category, branch, user and period. Discount is reportable by user with override logging, purchase rate variance against both history and the originating order is available, and write-off and near-expiry values sit alongside margin rather than in a separate stock adjustment screen.
+[pharCare](/services/pharcare/) computes margin against the purchase rate of the batch actually dispensed, and reports it by item, category, branch, user and period. Discount is reportable by user with override logging, purchase rate variance against both history and the originating order is available, and write-off and near-expiry values sit alongside margin rather than in a separate stock adjustment screen.
 
 To see these reports run against your own transaction history, [book a demo](/contact/).

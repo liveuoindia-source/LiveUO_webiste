@@ -35,7 +35,7 @@ router.get("/:docId", (req, res) => {
   const kind = kindOf(doc);
   // A library is played by its own page (the pharCare demo page), which runs
   // the same OTP gate inline. This URL just points there.
-  if (kind === "library") return res.redirect(302, doc.page || "/products/pharcare/demo/");
+  if (kind === "library") return res.redirect(302, doc.page || "/services/pharcare/demo/");
 
   const siteKey = process.env.RECAPTCHA_SITE_KEY || "";
   const title = doc.title || (kind === "video" ? "Secure video" : "Secure document");

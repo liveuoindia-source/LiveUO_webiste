@@ -116,7 +116,7 @@ Ask to see this timed during an evaluation. It is a good proxy for how much atte
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) holds composition, strength and dosage form on the item master, so alternatives are matched on full composition including every component of a combination — not on molecule name alone. The list shows MRP, price per unit, cost for the quantity needed, stock position and batch expiry, ordered by relevance and price rather than by margin. Substitution is a pharmacist action, recorded against the transaction with the dispensed batch, under the individual user's login.
+[pharCare](/services/pharcare/) holds composition, strength and dosage form on the item master, so alternatives are matched on full composition including every component of a combination — not on molecule name alone. The list shows MRP, price per unit, cost for the quantity needed, stock position and batch expiry, ordered by relevance and price rather than by margin. Substitution is a pharmacist action, recorded against the transaction with the dispensed batch, under the individual user's login.
 
 To see salt-based search against your own item master, [book a demo](/contact/).
 

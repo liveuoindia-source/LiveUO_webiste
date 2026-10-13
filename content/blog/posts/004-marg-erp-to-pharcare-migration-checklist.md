@@ -122,6 +122,6 @@ On the day:
 
 ## How pharCare approaches it
 
-[pharCare](/products/pharcare/) onboarding includes the migration itself — stock with batch and expiry intact, customer and supplier masters, outstanding balances, and transaction history imported as retrievable read-only records. The item master cleanup is done collaboratively, because deduplication decisions need someone who knows the counter, not just the data.
+[pharCare](/services/pharcare/) onboarding includes the migration itself — stock with batch and expiry intact, customer and supplier masters, outstanding balances, and transaction history imported as retrievable read-only records. The item master cleanup is done collaboratively, because deduplication decisions need someone who knows the counter, not just the data.
 
-If you are weighing the move, the [pharCare vs Marg ERP comparison](/products/pharcare-vs-marg-erp/) covers the functional differences, and a [demo](/contact/) can be run against a sample of your own export so you can see your actual data in the new system before committing.
+If you are weighing the move, a [demo](/contact/) can be run against a sample of your own export so you can see your actual data in the new system before committing.

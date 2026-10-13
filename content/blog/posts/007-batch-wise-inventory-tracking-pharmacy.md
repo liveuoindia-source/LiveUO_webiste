@@ -108,6 +108,6 @@ If a vendor cannot demonstrate all five against sample data, the batch model is 
 
 ## How pharCare implements it
 
-[pharCare](/products/pharcare/) holds batch number, expiry date, purchase rate and MRP against every batch, captures them at goods receipt with barcode and import support, selects batches by FEFO at billing with logged overrides, preserves the batch record through inter-branch transfers and returns, and records the batch on every sale line so recall traceability and true margin both work.
+[pharCare](/services/pharcare/) holds batch number, expiry date, purchase rate and MRP against every batch, captures them at goods receipt with barcode and import support, selects batches by FEFO at billing with logged overrides, preserves the batch record through inter-branch transfers and returns, and records the batch on every sale line so recall traceability and true margin both work.
 
 To see it against your own stock file, [book a demo](/contact/).

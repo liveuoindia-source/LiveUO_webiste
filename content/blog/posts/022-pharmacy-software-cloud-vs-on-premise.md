@@ -109,6 +109,6 @@ Once those are in, the models are usually closer than the headline suggests, and
 
 ## How pharCare is deployed
 
-[pharCare](/products/pharcare/) runs local-first: each counter bills against a local data position so an outage does not stop trading, and syncs centrally for cross-branch stock visibility, backup and reporting. Invoice numbering is pre-allocated per counter so offline bills cannot collide, sync status is visible, and post-sync exceptions are reported rather than absorbed silently. Regulatory updates are delivered continuously rather than gated behind a maintenance renewal.
+[pharCare](/services/pharcare/) runs local-first: each counter bills against a local data position so an outage does not stop trading, and syncs centrally for cross-branch stock visibility, backup and reporting. Invoice numbering is pre-allocated per counter so offline bills cannot collide, sync status is visible, and post-sync exceptions are reported rather than absorbed silently. Regulatory updates are delivered continuously rather than gated behind a maintenance renewal.
 
 To review which model fits your connectivity and branch structure, [book a demo](/contact/).

@@ -111,7 +111,7 @@ Most pharmacies find at least two uncomfortable answers in that list. All five a
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) backs up automatically with off-site copies and versioned retention, enforces individual user logins with role-based access rather than a shared admin account, and logs access and changes so incidents are investigable. Customer records are linked, so a data-principal request can be answered from one place, and record retention aligns to the statutory periods for drug and tax records rather than to a generic rotation.
+[pharCare](/services/pharcare/) backs up automatically with off-site copies and versioned retention, enforces individual user logins with role-based access rather than a shared admin account, and logs access and changes so incidents are investigable. Customer records are linked, so a data-principal request can be answered from one place, and record retention aligns to the statutory periods for drug and tax records rather than to a generic rotation.
 
 To review your current backup and access position, [book a demo](/contact/) — it is usually a short conversation with a couple of surprises in it.
 

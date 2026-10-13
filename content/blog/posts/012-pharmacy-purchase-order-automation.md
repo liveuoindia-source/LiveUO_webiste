@@ -122,6 +122,6 @@ The right division of labour: the system handles the arithmetic across three tho
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) builds purchase suggestions from trailing movement, current stock including in-transit, measured supplier lead time and cover targets set by item class, with shelf-life constraints applied so an order cannot quietly create an expiry position. Orders are reviewed and released by a person; goods receipt matches back to the order with quantity, rate and batch discrepancies flagged, and rate variance against agreed pricing is reportable.
+[pharCare](/services/pharcare/) builds purchase suggestions from trailing movement, current stock including in-transit, measured supplier lead time and cover targets set by item class, with shelf-life constraints applied so an order cannot quietly create an expiry position. Orders are reviewed and released by a person; goods receipt matches back to the order with quantity, rate and batch discrepancies flagged, and rate variance against agreed pricing is reportable.
 
 To see suggestions generated against your own movement history, [book a demo](/contact/).

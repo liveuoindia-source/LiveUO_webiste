@@ -120,6 +120,6 @@ Dispensing errors are the number that deserves individual attention rather than 
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) raises returns against the original invoice and batch, generates a linked credit note with tax reduced at the rate originally charged, and routes returned stock to quarantine or write-off rather than back into saleable inventory. A mandatory reason code is recorded on every return, authority limits are enforced per user role with overrides logged, and returns are reportable by reason, by staff member and by value alongside other write-offs.
+[pharCare](/services/pharcare/) raises returns against the original invoice and batch, generates a linked credit note with tax reduced at the rate originally charged, and routes returned stock to quarantine or write-off rather than back into saleable inventory. A mandatory reason code is recorded on every return, authority limits are enforced per user role with overrides logged, and returns are reportable by reason, by staff member and by value alongside other write-offs.
 
 To set up a returns policy in the system that matches how you actually want to trade, [book a demo](/contact/).

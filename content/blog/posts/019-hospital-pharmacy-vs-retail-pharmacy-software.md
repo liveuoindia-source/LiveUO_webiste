@@ -118,6 +118,6 @@ That is a genuine requirement rather than an edge case, and it is worth stating 
 
 ## How pharCare approaches it
 
-[pharCare](/products/pharcare/) provides the core that transfers unchanged — batch and expiry tracking, drug-schedule compliance including controlled substances, GST handling, purchase management and role-based audit trails — with multi-location stock and batch-preserving transfers as standard. Indent workflows, ward stock, patient-account charging and consumption-by-department reporting are scoped as part of a hospital deployment rather than assumed, because the integration surface with an existing HIS differs from hospital to hospital.
+[pharCare](/services/pharcare/) provides the core that transfers unchanged — batch and expiry tracking, drug-schedule compliance including controlled substances, GST handling, purchase management and role-based audit trails — with multi-location stock and batch-preserving transfers as standard. Indent workflows, ward stock, patient-account charging and consumption-by-department reporting are scoped as part of a hospital deployment rather than assumed, because the integration surface with an existing HIS differs from hospital to hospital.
 
 If you are running or planning a hospital pharmacy, [book a demo](/contact/) and we will map it against your actual locations and billing flow. The [hospital pharmacy solutions page](/solutions/hospital-pharmacies/) covers the wider picture.

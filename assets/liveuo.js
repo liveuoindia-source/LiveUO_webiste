@@ -248,7 +248,7 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
   }
 
-  /* ---------- mega-menu (Products / Solutions / Resources / Company) ----------
+  /* ---------- mega-menu (Services) ----------
    * Click-to-toggle rather than hover, so it works identically on touch and
    * desktop, and behaves as an accordion inside the mobile full-screen panel.
    */
