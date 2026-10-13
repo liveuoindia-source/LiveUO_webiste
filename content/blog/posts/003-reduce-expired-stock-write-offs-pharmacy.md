@@ -107,6 +107,6 @@ The third is the one to manage by. The first only tells you about decisions made
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) tracks every item by batch and expiry, holds MRP and purchase rate per batch, and selects batches by FEFO automatically at billing with logged overrides. Near-expiry thresholds are configurable, the worklist is filtered by days-to-expiry so the weekly routine is a single screen, and multi-branch deployments see batch-level stock across outlets so short-dated stock can be transferred rather than written off. Write-offs generate the records your accountant needs for the corresponding input tax credit treatment.
+[pharCare](/services/pharcare/) tracks every item by batch and expiry, holds MRP and purchase rate per batch, and selects batches by FEFO automatically at billing with logged overrides. Near-expiry thresholds are configurable, the worklist is filtered by days-to-expiry so the weekly routine is a single screen, and multi-branch deployments see batch-level stock across outlets so short-dated stock can be transferred rather than written off. Write-offs generate the records your accountant needs for the corresponding input tax credit treatment.
 
 To see your own expiry exposure mapped out, [book a demo](/contact/) — bring a current stock file and we will run it through.

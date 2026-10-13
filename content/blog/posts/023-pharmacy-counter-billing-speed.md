@@ -118,6 +118,6 @@ Also watch the **spread** between your fastest and slowest staff. A wide spread 
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) is keyboard-driven end to end, with configurable short codes, search ranked by your own movement rather than alphabetically, non-modal lookups, held bills, split payments, first-class loose-strip handling, and recalled customers and prescribers so mandatory compliance capture costs keystrokes rather than conversation. Shortcuts and screen defaults are configured to your workflow during onboarding rather than left generic.
+[pharCare](/services/pharcare/) is keyboard-driven end to end, with configurable short codes, search ranked by your own movement rather than alphabetically, non-modal lookups, held bills, split payments, first-class loose-strip handling, and recalled customers and prescribers so mandatory compliance capture costs keystrokes rather than conversation. Shortcuts and screen defaults are configured to your workflow during onboarding rather than left generic.
 
 To have your current bill time measured against it, [book a demo](/contact/) — bring a typical basket and we will time both.

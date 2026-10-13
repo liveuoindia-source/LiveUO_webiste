@@ -139,6 +139,6 @@ Weekly is for operations. Slower cycles carry the structural questions:
 
 ## How pharCare reports it
 
-[pharCare](/products/pharcare/) produces each of these as a scheduled report, per branch and consolidated, delivered weekly so the review does not depend on anyone remembering to run it. Margin is computed from batch-level purchase rates, discount and overrides are attributed to individual users, near-expiry value is available at 30/60/90/120-day thresholds, and compliance exceptions are surfaced as a single reviewable list rather than scattered across separate screens.
+[pharCare](/services/pharcare/) produces each of these as a scheduled report, per branch and consolidated, delivered weekly so the review does not depend on anyone remembering to run it. Margin is computed from batch-level purchase rates, discount and overrides are attributed to individual users, near-expiry value is available at 30/60/90/120-day thresholds, and compliance exceptions are surfaced as a single reviewable list rather than scattered across separate screens.
 
 To have this set up against your own data, [book a demo](/contact/).

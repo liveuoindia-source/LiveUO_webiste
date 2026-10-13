@@ -111,6 +111,6 @@ If your chain is growing, the cost of opening branch six matters. Item master, p
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) syncs stock and billing across branches in real time to a single head-office dashboard, with batch-level visibility per outlet, transfers that carry the full batch record, centrally controlled pricing with logged overrides, and role-based access scoped per branch. Branch billing continues through a connectivity outage and reconciles on reconnect.
+[pharCare](/services/pharcare/) syncs stock and billing across branches in real time to a single head-office dashboard, with batch-level visibility per outlet, transfers that carry the full batch record, centrally controlled pricing with logged overrides, and role-based access scoped per branch. Branch billing continues through a connectivity outage and reconciles on reconnect.
 
 If you are running two or more outlets today, [book a demo](/contact/) and we will set it up against your actual branch structure rather than a generic sample.

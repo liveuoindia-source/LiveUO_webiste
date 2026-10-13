@@ -97,7 +97,7 @@ Retention is where paper registers quietly fail. Three years of bound registers 
 
 ## How pharCare implements this
 
-[pharCare](/products/pharcare/) carries the schedule classification on every item in the drug master and applies the matching rule set at billing time. Scanning an H1 product makes prescriber and patient capture mandatory before the invoice can be saved; the Schedule H1 register is then generated directly from those saved transactions, for any date range, in the column order an inspector expects. Amendments are versioned rather than overwritten, so the audit trail stays intact.
+[pharCare](/services/pharcare/) carries the schedule classification on every item in the drug master and applies the matching rule set at billing time. Scanning an H1 product makes prescriber and patient capture mandatory before the invoice can be saved; the Schedule H1 register is then generated directly from those saved transactions, for any date range, in the column order an inspector expects. Amendments are versioned rather than overwritten, so the audit trail stays intact.
 
 Because the register is derived from billing data rather than maintained alongside it, the two cannot drift apart — which is the single most common reason a well-run pharmacy still fails an inspection.
 

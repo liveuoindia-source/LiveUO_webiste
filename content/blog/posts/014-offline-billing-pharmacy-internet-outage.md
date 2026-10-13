@@ -112,6 +112,6 @@ The fallback procedure is worth ten minutes of everyone's time once a year. The 
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) bills locally against a local stock position, so an outage does not stop the counter, and reconciles automatically on reconnect. Invoice numbering uses pre-allocated ranges per counter so offline bills cannot collide, sync status is visible at each counter with pending-transaction counts, and post-sync exceptions — including negative stock arising from concurrent offline sales — are reported rather than silently absorbed. Schedule H1 capture is enforced offline exactly as it is online.
+[pharCare](/services/pharcare/) bills locally against a local stock position, so an outage does not stop the counter, and reconciles automatically on reconnect. Invoice numbering uses pre-allocated ranges per counter so offline bills cannot collide, sync status is visible at each counter with pending-transaction counts, and post-sync exceptions — including negative stock arising from concurrent offline sales — are reported rather than silently absorbed. Schedule H1 capture is enforced offline exactly as it is online.
 
 To see the outage behaviour demonstrated rather than described, [book a demo](/contact/) and ask us to pull the cable.

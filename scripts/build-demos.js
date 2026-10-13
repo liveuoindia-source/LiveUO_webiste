@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*  Renders the pharCare demo video page from content/demos/videos.json.
  *
- *  Output: products/pharcare/demo/index.html - a static page, served by IIS
+ *  Output: services/pharcare/demo/index.html - a static page, served by IIS
  *  directly.
  *
  *  The videos themselves are gated: only addresses on the "pharcare-demo"
@@ -40,9 +40,9 @@ const MANIFEST = path.resolve(
   mi !== -1 && args[mi + 1] ? args[mi + 1] : path.join(ROOT, "content", "demos", "videos.json")
 );
 
-const PAGE_PATH = "/products/pharcare/demo/";
+const PAGE_PATH = "/services/pharcare/demo/";
 const PAGE_URL = ORIGIN + PAGE_PATH;
-const PAGE_FILE = path.join(ROOT, "products", "pharcare", "demo", "index.html");
+const PAGE_FILE = path.join(ROOT, "services", "pharcare", "demo", "index.html");
 // The allow-list entry in server/private/viewers.json that gates these videos.
 const GATE_DOC = "pharcare-demo";
 // Always through /server.js: on this host IIS reaches Node only by that
@@ -255,7 +255,7 @@ function render({ page, groups, order }) {
 
   const main =
     `<section class="demo-hero"><div class="container">` +
-    `<div class="breadcrumb"><a href="/">Home</a> / <a href="/products/pharcare/">pharCare</a> / <span>Demo videos</span></div>` +
+    `<div class="breadcrumb"><a href="/">Home</a> / <a href="/services/pharcare/">pharCare</a> / <span>Demo videos</span></div>` +
     `<h1>${esc(heading)}</h1>${lede ? `<p class="lede">${esc(lede)}</p>` : ""}` +
     `</div></section>` +
     `<section class="demo-section"><div class="container demo-layout">` +
@@ -337,7 +337,7 @@ function updateSitemap(order) {
   if (mine.test(xml)) {
     next = xml.replace(mine, line);
   } else {
-    const anchor = new RegExp("^([ \\t]*<url><loc>" + escRe(ORIGIN + "/products/pharcare/") + "</loc>.*</url>)[ \\t]*$", "m");
+    const anchor = new RegExp("^([ \\t]*<url><loc>" + escRe(ORIGIN + "/services/pharcare/") + "</loc>.*</url>)[ \\t]*$", "m");
     next = anchor.test(xml) ? xml.replace(anchor, "$1\n" + line) : xml.replace("</urlset>", line + "\n</urlset>");
   }
   if (next === xml) return "unchanged";

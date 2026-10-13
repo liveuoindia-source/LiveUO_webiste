@@ -102,6 +102,6 @@ The most common false economy is buying 1D scanners, then discovering that the b
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) supports scanning at both goods receipt and billing, reads GS1 DataMatrix codes to populate product, batch and expiry together at receipt, and lets unmapped codes be attached to an item inline so coverage builds as stock arrives. The manual search path is designed as a first-class route — short codes, fast lookup — rather than a penalty for products that will never carry a usable barcode.
+[pharCare](/services/pharcare/) supports scanning at both goods receipt and billing, reads GS1 DataMatrix codes to populate product, batch and expiry together at receipt, and lets unmapped codes be attached to an item inline so coverage builds as stock arrives. The manual search path is designed as a first-class route — short codes, fast lookup — rather than a penalty for products that will never carry a usable barcode.
 
 To see the receipt and billing flows with your own stock, [book a demo](/contact/).

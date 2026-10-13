@@ -24,7 +24,7 @@ const ORIGIN = "https://www.liveuo.com";
 const POSTS_DIR = path.join(ROOT, "content", "blog", "posts");
 const STATE_FILE = path.join(ROOT, "content", "blog", "state.json");
 const BLOG_DIR = path.join(ROOT, "resources", "blog");
-const CHROME_SOURCE = path.join(ROOT, "products", "pharcare", "index.html");
+const CHROME_SOURCE = path.join(ROOT, "services", "pharcare", "index.html");
 
 const ORG = {
   "@type": "Organization",
@@ -242,7 +242,7 @@ function renderPost(post, related) {
           "@type": "SoftwareApplication",
           name: "pharCare",
           applicationCategory: "BusinessApplication",
-          url: ORIGIN + "/products/pharcare/"
+          url: ORIGIN + "/services/pharcare/"
         }
       }
     ]
@@ -307,7 +307,7 @@ function renderPost(post, related) {
     "<h2>pharCare handles this out of the box.</h2>" +
     "<p>GST-ready billing, batch and expiry tracking, multi-branch stock sync, and Schedule H/H1/H1X logging &mdash; built for how Indian pharmacies actually run.</p>" +
     '<div class="post-cta-actions"><a class="btn btn-primary" href="/contact/">Book a free demo</a>' +
-    '<a class="btn btn-ghost" href="/products/pharcare/">Explore pharCare</a></div></div>' +
+    '<a class="btn btn-ghost" href="/services/pharcare/">Explore pharCare</a></div></div>' +
     "</article></div></section>" +
     faq +
     relatedHtml +

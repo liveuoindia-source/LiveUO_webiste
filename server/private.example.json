@@ -16,7 +16,7 @@
     "                           (npm run demos:encode makes these)",
     "  library  instead of file: a folder of HLS videos played by a page",
     "           elsewhere on the site. pharcare-demo gates the pharCare demo",
-    "           page at /products/pharcare/demo/ - no entry, no one can watch.",
+    "           page at /services/pharcare/demo/ - no entry, no one can watch.",
     "  allow    exact email addresses permitted. Case-insensitive.",
     "           There is no wildcard or domain match, deliberately.",
     "  expires  YYYY-MM-DD. After this date the entry behaves exactly",

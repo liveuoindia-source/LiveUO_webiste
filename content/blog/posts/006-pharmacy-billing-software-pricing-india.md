@@ -121,6 +121,6 @@ Line six is where cheap software stops being cheap. Two hours a week maintaining
 
 ## How pharCare is priced
 
-[pharCare](/products/pharcare/) is quoted against your actual branch count, counter count and module needs rather than a published list price, because a single independent pharmacy and a twelve-outlet chain are not the same purchase. Migration and training are scoped explicitly in the quote rather than discovered later.
+[pharCare](/services/pharcare/) is quoted against your actual branch count, counter count and module needs rather than a published list price, because a single independent pharmacy and a twelve-outlet chain are not the same purchase. Migration and training are scoped explicitly in the quote rather than discovered later.
 
 For a number scoped to your setup, [book a demo](/contact/) — bring your branch count, counter count and a rough SKU count and you will get a realistic figure in the same conversation.

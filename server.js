@@ -51,20 +51,28 @@ app.use((req, res, next) => {
 // direct visits and crawlers get a real redirect, not just the meta-refresh
 // stub left in the old file for defense-in-depth.
 const LEGACY_REDIRECTS = {
-  "/services/ecommerce": "/products/ecommerce-platform/",
-  "/services/ecommerce/": "/products/ecommerce-platform/",
-  "/services/pharma": "/products/pharcare/",
-  "/services/pharma/": "/products/pharcare/",
-  "/services/custom": "/products/custom-application-development/",
-  "/services/custom/": "/products/custom-application-development/",
-  "/services/automation": "/products/custom-application-development/",
-  "/services/automation/": "/products/custom-application-development/",
+  "/products/pharcare-vs-marg-erp": "/services/pharcare/",
+  "/products/pharcare-vs-marg-erp/": "/services/pharcare/",
+  "/services/ecommerce": "/services/ecommerce-platform/",
+  "/services/ecommerce/": "/services/ecommerce-platform/",
+  "/services/pharma": "/services/pharcare/",
+  "/services/pharma/": "/services/pharcare/",
+  "/services/custom": "/services/custom-application-development/",
+  "/services/custom/": "/services/custom-application-development/",
+  "/services/automation": "/services/custom-application-development/",
+  "/services/automation/": "/services/custom-application-development/",
   "/case-studies": "/resources/case-studies/",
   "/case-studies/": "/resources/case-studies/"
 };
 app.use((req, res, next) => {
   const target = LEGACY_REDIRECTS[req.path];
   if (target) return res.redirect(301, target);
+  // Product pages moved from /products/ to /services/.
+  if (req.path === "/products" || req.path.startsWith("/products/")) {
+    const rest = req.path.slice("/products".length);
+    if (rest === "" || rest === "/") return res.redirect(301, "/services/pharcare/");
+    return res.redirect(301, "/services" + (rest.endsWith("/") ? rest : rest + "/"));
+  }
   next();
 });
 

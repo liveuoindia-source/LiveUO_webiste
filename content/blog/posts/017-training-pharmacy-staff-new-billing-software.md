@@ -132,6 +132,6 @@ The last one is binary and it is the one to watch. A single handwritten bill in 
 
 ## How pharCare approaches it
 
-[pharCare](/products/pharcare/) onboarding is role-based rather than a single all-hands session, run against your own migrated item master, with the first week supported at the counter — because that is when habits form and when a workaround becomes permanent. Keyboard shortcuts and screen defaults are configured to your workflow before go-live rather than left at defaults, and a training environment stays available for new hires.
+[pharCare](/services/pharcare/) onboarding is role-based rather than a single all-hands session, run against your own migrated item master, with the first week supported at the counter — because that is when habits form and when a workaround becomes permanent. Keyboard shortcuts and screen defaults are configured to your workflow before go-live rather than left at defaults, and a training environment stays available for new hires.
 
 To plan a rollout around your shift pattern, [book a demo](/contact/).

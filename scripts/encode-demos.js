@@ -312,7 +312,7 @@ function main() {
   }
   console.log(
     "\nNext:\n" +
-      "  1. npm run build                 regenerates products/pharcare/demo/\n" +
+      "  1. npm run build                 regenerates services/pharcare/demo/\n" +
       "  2. upload demos/media/<slug>/    to the same path on the server\n" +
       "  3. commit and push the manifest and page - never the media"
   );

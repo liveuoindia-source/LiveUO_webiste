@@ -98,6 +98,6 @@ Schedule X and narcotic stock is not part of the general count. It is counted se
 
 ## How pharCare supports it
 
-[pharCare](/products/pharcare/) generates blind count sheets by category or location at batch level, accepts counted quantities back per batch, and posts adjustments with the variance value and a mandatory reason recorded against each line. Negative-stock, zero-movement, high-value and adjustment-history reports are available as pre-count preparation, and adjustment history is reportable by user so patterns are visible rather than anecdotal.
+[pharCare](/services/pharcare/) generates blind count sheets by category or location at batch level, accepts counted quantities back per batch, and posts adjustments with the variance value and a mandatory reason recorded against each line. Negative-stock, zero-movement, high-value and adjustment-history reports are available as pre-count preparation, and adjustment history is reportable by user so patterns are visible rather than anecdotal.
 
 To see the audit workflow against your own stock, [book a demo](/contact/).

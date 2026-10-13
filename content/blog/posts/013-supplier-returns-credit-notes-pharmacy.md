@@ -118,6 +118,6 @@ Thirty minutes a week and an hour a month, against a recovery that for most phar
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) generates return lists filtered by days-to-expiry and supplier, raises return documents carrying item, batch, expiry, quantity, rate and the original purchase reference, and tracks each return as outstanding until a supplier credit is matched to it. Outstanding returns are aged, return rate by supplier is reportable, and the tax value of returns and of write-offs is available separately for input tax credit treatment.
+[pharCare](/services/pharcare/) generates return lists filtered by days-to-expiry and supplier, raises return documents carrying item, batch, expiry, quantity, rate and the original purchase reference, and tracks each return as outstanding until a supplier credit is matched to it. Outstanding returns are aged, return rate by supplier is reportable, and the tax value of returns and of write-offs is available separately for input tax credit treatment.
 
 To see the return workflow against your current supplier terms, [book a demo](/contact/).

@@ -124,6 +124,6 @@ Three things that help:
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) holds a credit limit per customer, enforced at billing with logged overrides, and maintains outstanding by account with configurable ageing buckets. Statements listing individual invoices with dates and amounts can be generated per account and sent on a schedule, receipts are applied against specific invoices rather than as a lump credit, and the credit position feeds the same reporting as [margin and discount](/resources/blog/pharmacy-margin-analysis-reports/) so working capital tied up in receivables is visible next to the profit it produced.
+[pharCare](/services/pharcare/) holds a credit limit per customer, enforced at billing with logged overrides, and maintains outstanding by account with configurable ageing buckets. Statements listing individual invoices with dates and amounts can be generated per account and sent on a schedule, receipts are applied against specific invoices rather than as a lump credit, and the credit position feeds the same reporting as [margin and discount](/resources/blog/pharmacy-margin-analysis-reports/) so working capital tied up in receivables is visible next to the profit it produced.
 
 To review your current ageing position, [book a demo](/contact/).

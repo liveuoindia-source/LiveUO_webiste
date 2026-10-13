@@ -113,7 +113,7 @@ The fourth row is worth checking specifically during an evaluation. Some systems
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) holds MRP and purchase rate against each batch, and the batch selected at billing sets the price on the line — so the bill always matches the pack handed over, with no override required. Bulk price updates apply to incoming stock rather than rewriting existing batches, a report lists items currently holding more than one active MRP, MRP is printed on the bill line, and any manual price override is logged with user and reason.
+[pharCare](/services/pharcare/) holds MRP and purchase rate against each batch, and the batch selected at billing sets the price on the line — so the bill always matches the pack handed over, with no override required. Bulk price updates apply to incoming stock rather than rewriting existing batches, a report lists items currently holding more than one active MRP, MRP is printed on the bill line, and any manual price override is logged with user and reason.
 
 To see how your current stock would look under batch-level pricing, [book a demo](/contact/).
 

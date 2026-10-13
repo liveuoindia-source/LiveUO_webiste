@@ -125,6 +125,6 @@ With several outlets, stock moves between them. A recall response must therefore
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) records batch on every stock movement and on every sale line, so a batch number resolves directly to current stock across all locations and to the exact transactions that dispensed it. Batches can be blocked from dispensing immediately, transfers preserve the batch record across branches, and customer-linked sales produce a contactable list. The resulting stock, sales and contact records form the documented response pack.
+[pharCare](/services/pharcare/) records batch on every stock movement and on every sale line, so a batch number resolves directly to current stock across all locations and to the exact transactions that dispensed it. Batches can be blocked from dispensing immediately, transfers preserve the batch record across branches, and customer-linked sales produce a contactable list. The resulting stock, sales and contact records form the documented response pack.
 
 To run a recall drill against your own history, [book a demo](/contact/).

@@ -137,6 +137,6 @@ A delivery service with clear boundaries is sustainable. One that tries to serve
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) captures delivery orders against a customer with address and slot into a single queue regardless of channel, holds the attached prescription for pharmacist verification before picking, generates the bill with batch recorded on each line, tracks status through packed, dispatched and delivered, assigns orders to riders for batched routes, and records payment status and proof of delivery for daily reconciliation. Compliance capture for scheduled drugs is enforced identically to a counter sale.
+[pharCare](/services/pharcare/) captures delivery orders against a customer with address and slot into a single queue regardless of channel, holds the attached prescription for pharmacist verification before picking, generates the bill with batch recorded on each line, tracks status through packed, dispatched and delivered, assigns orders to riders for batched routes, and records payment status and proof of delivery for daily reconciliation. Compliance capture for scheduled drugs is enforced identically to a counter sale.
 
 To scope a delivery operation around your area and order profile, [book a demo](/contact/).

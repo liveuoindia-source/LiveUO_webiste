@@ -127,6 +127,6 @@ Question 2 is the one that separates a considered integration from a script.
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) posts B2C sales as daily summaries by tax rate and payment mode, B2B invoices and purchases individually with counterparty and tax detail, and credit/debit notes with their original references, into Tally or via structured export. The ledger mapping table is yours to maintain, unmapped items raise an exception report rather than failing silently, posting is idempotent and restartable, and a billing-to-posted reconciliation report is available per period. Stock valuation is derived from batch-level cost in pharCare and passed as a periodic figure rather than maintained twice.
+[pharCare](/services/pharcare/) posts B2C sales as daily summaries by tax rate and payment mode, B2B invoices and purchases individually with counterparty and tax detail, and credit/debit notes with their original references, into Tally or via structured export. The ledger mapping table is yours to maintain, unmapped items raise an exception report rather than failing silently, posting is idempotent and restartable, and a billing-to-posted reconciliation report is available per period. Stock valuation is derived from batch-level cost in pharCare and passed as a periodic figure rather than maintained twice.
 
 To review your chart of accounts against it, [book a demo](/contact/).

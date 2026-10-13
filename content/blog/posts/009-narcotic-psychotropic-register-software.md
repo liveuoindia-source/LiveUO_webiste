@@ -113,7 +113,7 @@ Digital records are operationally superior and are what should drive your proces
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) carries schedule classification on every item and applies Schedule X rules distinctly from [Schedule H and H1 handling](/resources/blog/schedule-h-h1-h1x-pharmacy-billing-software/). Dispensing rights are granted per user under individual logins, prescription and file-reference capture is mandatory and non-dismissible, purchase and sale records generate in the prescribed format from the underlying transactions, amendments are versioned rather than overwritten, and a daily controlled-substance position is available for sign-off reconciliation.
+[pharCare](/services/pharcare/) carries schedule classification on every item and applies Schedule X rules distinctly from [Schedule H and H1 handling](/resources/blog/schedule-h-h1-h1x-pharmacy-billing-software/). Dispensing rights are granted per user under individual logins, prescription and file-reference capture is mandatory and non-dismissible, purchase and sale records generate in the prescribed format from the underlying transactions, amendments are versioned rather than overwritten, and a daily controlled-substance position is available for sign-off reconciliation.
 
 To review your controlled-substance workflow against it, [book a demo](/contact/).
 

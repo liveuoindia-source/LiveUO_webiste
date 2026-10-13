@@ -118,6 +118,6 @@ The third is the one to act on. A lapsed-patient list is a short, specific, high
 
 ## How pharCare handles it
 
-[pharCare](/products/pharcare/) records dosage at dispensing and calculates expected refill dates from quantity and daily dose, holds contact consent against the customer record with opt-out tracked, and sends reminders on a schedule you control with discreet default wording. Response is tracked against the reminder so conversion is measurable, lapsed-repeat lists are reportable, and known repeat demand feeds the stock position so the reminder and the shelf agree.
+[pharCare](/services/pharcare/) records dosage at dispensing and calculates expected refill dates from quantity and daily dose, holds contact consent against the customer record with opt-out tracked, and sends reminders on a schedule you control with discreet default wording. Response is tracked against the reminder so conversion is measurable, lapsed-repeat lists are reportable, and known repeat demand feeds the stock position so the reminder and the shelf agree.
 
 To see refill patterns from your own transaction history, [book a demo](/contact/).
