@@ -42,6 +42,8 @@ It is a product of LiVEUO, not a separate company.
 
 ## Company
 
+- [Privacy Policy](https://www.liveuo.com/privacy-policy/): How LiVEUO collects, uses and protects personal data.
+- [Terms & Conditions](https://www.liveuo.com/terms-and-conditions/): Terms for the LiVEUO website, software and services.
 - [About LiVEUO](https://www.liveuo.com/about/): The team and story behind LiVEUO.
 - [Case Studies](https://www.liveuo.com/resources/case-studies/): Projects across pharCare, pharmacy management, e-commerce, and custom applications.
 - [Contact](https://www.liveuo.com/contact/): Enquiries and demo requests.
