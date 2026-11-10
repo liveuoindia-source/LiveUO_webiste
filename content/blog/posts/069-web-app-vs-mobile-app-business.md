@@ -1,6 +1,6 @@
 ---json
 {
-  "title": "Web app or mobile app? Choosing the right platform for business software",
+  "title": "Web app or mobile app? Choosing a platform for business software",
   "description": "When a mobile-friendly web application is enough, when a native mobile app is worth the cost, and where progressive web apps fit for business software.",
   "category": "Planning",
   "service": "custom",
