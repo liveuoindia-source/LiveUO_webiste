@@ -1,7 +1,7 @@
 ---json
 {
   "title": "Billing under the GST composition scheme: what changes",
-  "description": "How invoicing works for composition taxpayers: bills of supply instead of tax invoices, no tax collected from customers, required declarations, and what billing software must do.",
+  "description": "How invoicing works for composition taxpayers: bills of supply, no tax collected from customers, required declarations, and what billing software must do.",
   "category": "GST & Tax",
   "service": "billing",
   "keywords": [
