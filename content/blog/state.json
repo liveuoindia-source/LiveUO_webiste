@@ -149,6 +149,11 @@
       "slug": "pharmacy-owner-kpi-dashboard",
       "date": "2026-09-29",
       "updated": "2026-09-29"
+    },
+    {
+      "slug": "pharmacy-day-end-cash-reconciliation",
+      "date": "2026-11-10",
+      "updated": "2026-11-10"
     }
   ]
 }
