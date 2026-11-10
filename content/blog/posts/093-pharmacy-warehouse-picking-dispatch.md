@@ -100,6 +100,32 @@ Track:
 
 Review weekly and address patterns — a confusing bin location, a look-alike pair, a training gap.
 
+## Common causes, and fixes
+
+| Cause | Fix |
+|---|---|
+| Look-alike packs stored side by side | Separate them; add shelf warnings |
+| Picker chooses an easier-to-reach batch | System allocates batch; scan to confirm |
+| Bin locations out of date | Update locations when stock is moved; spot-check weekly |
+| Rushed end-of-day dispatch | Set order cut-off times; stagger picking |
+| Partial packs mixed with full packs | Separate loose stock clearly |
+| New staff unfamiliar with the range | Pair with experienced pickers; start on simple orders |
+
+## Returns into the warehouse
+
+Stock coming back — from branches, retailers or failed deliveries — needs its own process, or it contaminates good stock:
+
+- receive returns in a separate area
+- check item, batch, expiry and condition
+- put saleable stock back to its correct bin, with the batch recorded
+- move damaged, short-expiry or expired stock to a non-saleable location for supplier return or disposal
+
+Returns put back without checks are one of the most common reasons a bin holds a batch the system doesn't know about.
+
+## Training and accountability
+
+Record who picked and who checked each order. When errors happen, it's then possible to see whether they cluster around a person, a shift or an item — and fix the real cause rather than blaming the whole team.
+
 ## The goal
 
 A warehouse that picks the right item, from the right batch, in the right quantity, every time — and can prove it. With system-driven pick lists, FEFO allocation and scanning, that becomes the norm rather than the exception.
