@@ -1,7 +1,7 @@
 ---json
 {
   "title": "Marketing metrics that matter: CPL, CAC, ROAS and lifetime value",
-  "description": "Plain-language explanations of the marketing numbers small businesses should track — cost per lead, acquisition cost, return on ad spend and customer lifetime value — and how to use them.",
+  "description": "Plain-language guide to cost per lead, customer acquisition cost, return on ad spend and lifetime value — and how small businesses should use them.",
   "category": "Measurement",
   "service": "marketing",
   "keywords": [
