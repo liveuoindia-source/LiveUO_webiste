@@ -415,3 +415,13 @@
     padding: 18px 20px;
   }
 }
+
+/* Service filter on the listing */
+.post-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+.post-filter {
+  font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; color: var(--slate);
+  background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px;
+}
+.post-filter:hover { border-color: var(--accent, #3a6cb5); }
+.post-filter.is-on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.post-card[hidden], .post-feature[hidden] { display: none; }

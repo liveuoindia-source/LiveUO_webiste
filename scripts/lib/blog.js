@@ -1,4 +1,4 @@
-/*  Blog engine for the pharCare content cluster.
+/*  Blog engine for the LiVEUO blog (one content cluster per service).
  *
  *  The site has no template layer - exported HTML files are the source - so
  *  this generates post pages that look hand-authored and slot into the same
@@ -25,6 +25,69 @@ const POSTS_DIR = path.join(ROOT, "content", "blog", "posts");
 const STATE_FILE = path.join(ROOT, "content", "blog", "state.json");
 const BLOG_DIR = path.join(ROOT, "resources", "blog");
 const CHROME_SOURCE = path.join(ROOT, "services", "pharcare", "index.html");
+
+/*  Every post belongs to one service, set by "service" in its front matter
+ *  (default "pharcare", which is what the first 30 posts were written for).
+ *  It picks the closing call to action, the "about" node in the JSON-LD,
+ *  related reading, and the filter chip on the listing. */
+const SERVICES = {
+  pharcare: {
+    label: "pharCare",
+    url: "/services/pharcare/",
+    type: "SoftwareApplication",
+    heading: "pharCare handles this out of the box.",
+    text: "GST-ready billing, batch and expiry tracking, multi-branch stock sync, and Schedule H/H1/H1X logging &mdash; built for how Indian pharmacies actually run.",
+    button: "Explore pharCare"
+  },
+  "pharmacy-suite": {
+    label: "Pharmacy Management",
+    url: "/services/complete-pharmacy-software/",
+    type: "SoftwareApplication",
+    heading: "Run every store, warehouse and distributor from one system.",
+    text: "Complete Pharmacy Management Software covers chain-wide stock, warehouse transfers, distributor billing and consolidated reporting.",
+    button: "Explore the pharmacy suite"
+  },
+  billing: {
+    label: "Billing Software",
+    url: "/services/billing-software/",
+    type: "SoftwareApplication",
+    heading: "GST billing that keeps up with the counter.",
+    text: "GST-compliant invoicing, credit notes, multi-user access and an audit trail, for businesses outside the pharmacy sector.",
+    button: "Explore billing software"
+  },
+  ecommerce: {
+    label: "E-Commerce",
+    url: "/services/ecommerce-platform/",
+    type: "Service",
+    heading: "A store built to convert, and to hold up on sale day.",
+    text: "Storefronts and checkout systems with payments, inventory sync and order workflows built around how you sell.",
+    button: "Explore e-commerce"
+  },
+  custom: {
+    label: "Custom Development",
+    url: "/services/custom-application-development/",
+    type: "Service",
+    heading: "Software built around how your team works.",
+    text: "Web, mobile and enterprise applications scoped to your process, with fixed-scope delivery and support after launch.",
+    button: "Explore custom development"
+  },
+  automation: {
+    label: "AI Automation",
+    url: "/services/ai-automation-analytics/",
+    type: "Service",
+    heading: "Hand the repetitive work to software.",
+    text: "AI automation and live analytics that take over data entry, follow-ups and reporting, so your team can focus on decisions.",
+    button: "Explore AI automation"
+  },
+  marketing: {
+    label: "Digital Marketing",
+    url: "/services/digital-marketing/",
+    type: "Service",
+    heading: "Turn this into a plan for your business.",
+    text: "SEO, Google Ads, social media, WhatsApp and content, planned around your industry and measured against the numbers that matter.",
+    button: "Explore digital marketing"
+  }
+};
 
 const ORG = {
   "@type": "Organization",
@@ -87,11 +150,16 @@ function parsePostFile(file) {
     if (!meta[field]) throw new Error(path.basename(file) + ': missing required field "' + field + '"');
   }
   if (!body) throw new Error(path.basename(file) + ": body is empty");
+  const service = meta.service || "pharcare";
+  if (!SERVICES[service]) {
+    throw new Error(path.basename(file) + ': unknown service "' + service + '" (use one of ' + Object.keys(SERVICES).join(", ") + ")");
+  }
 
   const words = md.toPlainText(body).split(/\s+/).length;
 
   return Object.assign({}, meta, {
     slug: slug,
+    service: service,
     body: body,
     file: path.relative(ROOT, file).split(path.sep).join("/"),
     words: words,
@@ -193,6 +261,9 @@ function head(opts) {
   );
 }
 
+const BLOG_DESCRIPTION =
+  "Daily, India-specific guides on pharmacy software, GST billing, e-commerce, custom software, AI automation and digital marketing.";
+
 function prettyDate(iso) {
   return new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", {
     day: "numeric",
@@ -204,7 +275,7 @@ function prettyDate(iso) {
 
 function cardHtml(post) {
   return (
-    '<a class="post-card" href="/resources/blog/' + post.slug + '/">' +
+    '<a class="post-card" data-service="' + post.service + '" href="/resources/blog/' + post.slug + '/">' +
     '<span class="post-card-cat">' + esc(post.category) + "</span>" +
     "<h3>" + esc(post.title) + "</h3>" +
     "<p>" + esc(post.description) + "</p>" +
@@ -217,6 +288,7 @@ function cardHtml(post) {
 /* One article page. `related` is up to two other live posts. */
 function renderPost(post, related) {
   const chrome = getChrome();
+  const svc = SERVICES[post.service];
   const rendered = md.render(post.body);
 
   const jsonLd = {
@@ -238,12 +310,10 @@ function renderPost(post, related) {
         keywords: post.keywords.join(", "),
         wordCount: post.words,
         inLanguage: "en-IN",
-        about: {
-          "@type": "SoftwareApplication",
-          name: "pharCare",
-          applicationCategory: "BusinessApplication",
-          url: ORIGIN + "/services/pharcare/"
-        }
+        about:
+          svc.type === "SoftwareApplication"
+            ? { "@type": "SoftwareApplication", name: svc.label, applicationCategory: "BusinessApplication", url: ORIGIN + svc.url }
+            : { "@type": "Service", name: svc.label, provider: ORG, url: ORIGIN + svc.url }
       }
     ]
   };
@@ -273,7 +343,7 @@ function renderPost(post, related) {
 
   const relatedHtml = related.length
     ? '<section class="post-related"><div class="container"><div class="post-shell">' +
-      '<div class="eyebrow">Keep reading</div><h2>Related pharCare guides</h2>' +
+      '<div class="eyebrow">Keep reading</div><h2>Related guides</h2>' +
       '<div class="post-card-grid">' + related.map(cardHtml).join("") +
       "</div></div></div></section>"
     : "";
@@ -304,10 +374,11 @@ function renderPost(post, related) {
     toc +
     rendered.html +
     '<div class="post-cta"><div class="eyebrow">See it working</div>' +
-    "<h2>pharCare handles this out of the box.</h2>" +
-    "<p>GST-ready billing, batch and expiry tracking, multi-branch stock sync, and Schedule H/H1/H1X logging &mdash; built for how Indian pharmacies actually run.</p>" +
-    '<div class="post-cta-actions"><a class="btn btn-primary" href="/contact/">Book a free demo</a>' +
-    '<a class="btn btn-ghost" href="/services/pharcare/">Explore pharCare</a></div></div>' +
+    "<h2>" + svc.heading + "</h2>" +
+    "<p>" + svc.text + "</p>" +
+    '<div class="post-cta-actions"><a class="btn btn-primary" href="/contact/">' +
+    (svc.type === "SoftwareApplication" ? "Book a free demo" : "Book a free consultation") + "</a>" +
+    '<a class="btn btn-ghost" href="' + svc.url + '">' + svc.button + "</a></div></div>" +
     "</article></div></section>" +
     faq +
     relatedHtml +
@@ -329,10 +400,9 @@ function renderIndex(live) {
       ORG,
       {
         "@type": "Blog",
-        name: "LiVEUO Blog — pharCare guides",
+        name: "LiVEUO Blog",
         url: ORIGIN + "/resources/blog/",
-        description:
-          "Daily guides on pharmacy billing, GST compliance, drug-schedule rules, and inventory control for Indian pharmacies.",
+        description: BLOG_DESCRIPTION,
         inLanguage: "en-IN",
         publisher: ORG,
         blogPost: live.slice(0, 30).map((p) => ({
@@ -346,9 +416,22 @@ function renderIndex(live) {
     ]
   };
 
+  // Filter chips only for services that have at least one live post.
+  const present = Object.keys(SERVICES).filter((k) => live.some((p) => p.service === k));
+  const filters =
+    present.length > 1
+      ? '<div class="post-filters" role="group" aria-label="Filter articles by service">' +
+        '<button type="button" class="post-filter is-on" data-service="all" aria-pressed="true">All</button>' +
+        present
+          .map((k) => '<button type="button" class="post-filter" data-service="' + k + '" aria-pressed="false">' + esc(SERVICES[k].label) + "</button>")
+          .join("") +
+        "</div>"
+      : "";
+
   const body = live.length
-    ? (featured
-        ? '<a class="post-feature" href="/resources/blog/' + featured.slug + '/">' +
+    ? filters +
+      (featured
+        ? '<a class="post-feature" data-service="' + featured.service + '" href="/resources/blog/' + featured.slug + '/">' +
           '<span class="post-card-cat">Latest &middot; ' + esc(featured.category) + "</span>" +
           "<h2>" + esc(featured.title) + "</h2><p>" + esc(featured.description) + "</p>" +
           '<span class="post-card-meta"><time datetime="' + featured.date + '">' +
@@ -360,16 +443,17 @@ function renderIndex(live) {
 
   return (
     head({
-      title: "pharCare Blog — pharmacy billing & compliance guides | LiVEUO",
-      description:
-        "Practical guides on pharmacy billing software, GST invoicing, Schedule H compliance, expiry control, and multi-branch stock for Indian pharmacies. New article every day.",
+      title: "LiVEUO Blog — pharmacy software, billing, e-commerce, automation & marketing guides",
+      description: BLOG_DESCRIPTION,
       canonical: ORIGIN + "/resources/blog/",
       keywords: [
         "pharmacy billing software",
         "pharCare",
-        "GST invoicing pharmacy",
-        "Schedule H compliance",
-        "pharmacy inventory management India"
+        "GST billing software",
+        "e-commerce development India",
+        "custom software development",
+        "business process automation",
+        "digital marketing for small business"
       ],
       ogType: "website",
       jsonLd: jsonLd
@@ -378,14 +462,14 @@ function renderIndex(live) {
     chrome.nav +
     '<div class="page-hero"><div class="container">' +
     '<div class="breadcrumb"><a href="/">Home</a> / <a href="/resources/">Resources</a> / <span>Blog</span></div>' +
-    '<h1 style="max-width:700px">pharCare guides &amp; articles.</h1>' +
-    '<p class="lede">Practical, India-specific guidance on pharmacy billing, drug-schedule compliance, GST filing, and stock control &mdash; a new article every day.</p>' +
+    '<h1 style="max-width:700px">Guides &amp; articles.</h1>' +
+    '<p class="lede">Practical, India-specific guidance on pharmacy software, GST billing, e-commerce, custom software, automation and digital marketing &mdash; a new article every day.</p>' +
     '<div class="post-count">' + live.length + " article" + (live.length === 1 ? "" : "s") + " published</div>" +
     "</div></div>" +
     '<section><div class="container">' + body + "</div></section>" +
     '<section style="padding-top:0"><div class="container"><div class="cta-banner"><div>' +
     '<div class="eyebrow" style="color:#A9B2C3">Ready when you are</div>' +
-    "<h2>See pharCare running on your own stock list.</h2>" +
+    "<h2>Talk to us about your business.</h2>" +
     '<a class="btn btn-light" style="margin-top:10px" href="/contact/">Book a free demo</a></div>' +
     '<div class="cta-contact"><div>EMAIL<strong>info@liveuo.com</strong></div>' +
     '<div>PHONE<strong><a href="tel:+918050718269">+91 80507 18269</a></strong></div>' +
@@ -397,6 +481,13 @@ function renderIndex(live) {
     "Banashankari 3rd Stage, Banashankari, Bengaluru, Karnataka 560085, India" +
     "</strong></div></div></div></div></section>" +
     chrome.footer +
+    // Service filter. Without this script every article still shows.
+    (filters
+      ? "<script>(function(){var b=document.querySelectorAll('.post-filter'),c=document.querySelectorAll('.post-feature,.post-card');" +
+        "b.forEach(function(x){x.addEventListener('click',function(){var s=x.getAttribute('data-service');" +
+        "b.forEach(function(y){var on=y===x;y.classList.toggle('is-on',on);y.setAttribute('aria-pressed',on?'true':'false');});" +
+        "c.forEach(function(el){el.hidden=s!=='all'&&el.getAttribute('data-service')!==s;});});});})();</script>"
+      : "") +
     chrome.scripts +
     "</body></html>"
   );
@@ -420,9 +511,9 @@ function renderFeed(live) {
   return (
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n' +
-    "<title>LiVEUO — pharCare pharmacy software guides</title>\n" +
+    "<title>LiVEUO Blog</title>\n" +
     "<link>" + ORIGIN + "/resources/blog/</link>\n" +
-    "<description>Daily guides on pharmacy billing, GST compliance, and inventory control for Indian pharmacies.</description>\n" +
+    "<description>" + BLOG_DESCRIPTION + "</description>\n" +
     "<language>en-in</language>\n" +
     "<lastBuildDate>" + new Date().toUTCString() + "</lastBuildDate>\n" +
     '<atom:link href="' + ORIGIN + '/feed.xml" rel="self" type="application/rss+xml"/>\n' +
@@ -482,7 +573,9 @@ function writeAll(posts, state) {
   const written = [];
 
   for (const post of live) {
-    const related = live.filter((p) => p.slug !== post.slug).slice(0, 2);
+    // Same-service posts first (newest first), then anything else.
+    const others = live.filter((p) => p.slug !== post.slug);
+    const related = others.filter((p) => p.service === post.service).concat(others.filter((p) => p.service !== post.service)).slice(0, 2);
     const dir = path.join(BLOG_DIR, post.slug);
     fs.mkdirSync(dir, { recursive: true });
     const file = path.join(dir, "index.html");
@@ -514,5 +607,6 @@ module.exports = {
   renderIndex,
   renderFeed,
   // Shared with build-demos.js so the demo page keeps the live nav/footer.
-  getChrome
+  getChrome,
+  SERVICES
 };
