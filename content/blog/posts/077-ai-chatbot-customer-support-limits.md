@@ -1,6 +1,6 @@
 ---json
 {
-  "title": "AI chatbots for customer support: what they do well and where they fail",
+  "title": "AI chatbots for support: what they do well and where they fail",
   "description": "A realistic look at AI support chatbots for small and mid-sized businesses: good use cases, common failures, how to hand over to people, and how to measure them.",
   "category": "Automation",
   "service": "automation",
