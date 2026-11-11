@@ -154,6 +154,11 @@
       "slug": "pharmacy-day-end-cash-reconciliation",
       "date": "2026-11-10",
       "updated": "2026-11-10"
+    },
+    {
+      "slug": "gst-e-invoicing-irn-guide",
+      "date": "2026-11-11",
+      "updated": "2026-11-11"
     }
   ]
 }
