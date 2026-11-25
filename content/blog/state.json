@@ -224,6 +224,11 @@
       "slug": "pharmacy-reorder-levels-min-max",
       "date": "2026-11-24",
       "updated": "2026-11-24"
+    },
+    {
+      "slug": "hsn-sac-codes-on-gst-invoices",
+      "date": "2026-11-25",
+      "updated": "2026-11-25"
     }
   ]
 }
