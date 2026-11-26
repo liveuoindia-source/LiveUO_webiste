@@ -229,6 +229,11 @@
       "slug": "hsn-sac-codes-on-gst-invoices",
       "date": "2026-11-25",
       "updated": "2026-11-25"
+    },
+    {
+      "slug": "reduce-checkout-drop-off",
+      "date": "2026-11-26",
+      "updated": "2026-11-26"
     }
   ]
 }
