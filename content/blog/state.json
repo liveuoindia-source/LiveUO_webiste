@@ -234,6 +234,11 @@
       "slug": "reduce-checkout-drop-off",
       "date": "2026-11-26",
       "updated": "2026-11-26"
+    },
+    {
+      "slug": "fixed-price-vs-time-and-material",
+      "date": "2026-11-27",
+      "updated": "2026-11-27"
     }
   ]
 }
